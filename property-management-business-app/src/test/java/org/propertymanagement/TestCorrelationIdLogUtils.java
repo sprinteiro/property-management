@@ -1,4 +1,4 @@
-package org.propertymanagement.associationmeeting;
+package org.propertymanagement;
 
 import org.propertymanagement.util.CorrelationIdLog;
 

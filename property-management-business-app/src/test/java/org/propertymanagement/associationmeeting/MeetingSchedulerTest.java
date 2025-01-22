@@ -2,6 +2,7 @@ package org.propertymanagement.associationmeeting;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.propertymanagement.TestCorrelationIdLogUtils;
 import org.propertymanagement.associationmeeting.exception.MeetingScheduleException;
 import org.propertymanagement.associationmeeting.notification.MeetingNotification;
 import org.propertymanagement.associationmeeting.notification.MeetingNotificationService;
