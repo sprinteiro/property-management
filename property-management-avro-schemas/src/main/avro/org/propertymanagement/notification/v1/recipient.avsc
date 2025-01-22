@@ -1,0 +1,36 @@
+{
+  "namespace": "org.propertymanagement.notification.v1",
+  "type": "record",
+  "name": "Recipient",
+  "doc": "Recipient of a notification sent",
+  "fields": [
+    {
+      "name": "id",
+      "type": {
+        "type": "long",
+        "doc": "Recipient's identifier"
+      }
+    },
+    {
+      "name": "channel",
+      "type": {
+        "type": "string",
+        "doc": "Channel for the notification to be sent (SMS, EMAIL)"
+      }
+    },
+    {
+      "name": "address",
+      "type": {
+        "type": "string",
+        "doc": "Recipient's address for the notification (phone number, e-mail address)"
+      }
+    },
+    {
+      "name": "name",
+      "type": {
+        "type": "string",
+        "doc": "Recipient's name"
+      }
+    }
+  ]
+}

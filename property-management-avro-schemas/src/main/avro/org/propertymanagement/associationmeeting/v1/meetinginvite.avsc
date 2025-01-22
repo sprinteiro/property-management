@@ -1,0 +1,45 @@
+{
+    "namespace": "org.propertymanagement.associationmeeting.v1",
+    "type": "record",
+    "name": "MeetingInvite",
+    "doc": "Represents an invite for a meeting association",
+    "fields": [
+        {
+            "name": "date",
+            "type": "string",
+            "doc": "Meeting date"
+        },
+        {
+            "name": "time",
+            "type": "string",
+            "doc": "Meeting time"
+        },
+        {
+            "name": "communityId",
+            "type": "long",
+            "doc": "Community identifier"
+        },
+        {
+            "name": "approverId",
+            "type": ["null", "string"],
+            "doc": "Meeting approver identifier"
+        },
+        {
+            "name": "approvalDateTime",
+            "type": ["null", "string"],
+            "doc": "Date and time of meeting approval (dd/MM/yyyy HH:mm)",
+            "default": null
+        },
+        {
+            "name": "trackerId",
+            "type": "string",
+            "doc": "Meeting tracking identifier (meeting identifier)"
+        },
+        {
+            "name": "meetingId",
+            "type": ["null", "string"],
+            "doc": "Meeting identifier",
+            "default": null
+        }
+    ]
+}

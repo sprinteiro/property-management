@@ -1,0 +1,57 @@
+<TestPlan>
+  <UserDefinedVariables>
+    <elementProp name="User Defined Variables" elementType="Arguments">
+      <collectionProp name="Arguments.arguments">
+        <elementProp name="maxRetries" elementType="Argument">
+          <stringProp name="Argument.name">maxRetries</stringProp>
+          <stringProp name="Argument.value">5</stringProp>
+        </elementProp>
+        <elementProp name="counterValue" elementType="Argument">
+          <stringProp name="Argument.name">counterValue</stringProp>
+          <stringProp name="Argument.value">0</stringProp>
+        </elementProp>
+        <elementProp name="statusValue" elementType="Argument">
+          <stringProp name="Argument.name">statusValue</stringProp>
+          <stringProp name="Argument.value">MEETING_SCHEDULE_REQUESTED</stringProp>
+        </elementProp>
+      </collectionProp>
+    </elementProp>
+  </UserDefinedVariables>
+  <ThreadGroup>
+    <LoopController>
+      <boolProp name="LoopController.continue_forever">false</boolProp>
+      <stringProp name="LoopController.loops">1</stringProp>
+    </LoopController>
+    <JSR223Sampler>
+      <stringProp name="script">
+        // Extract variables and initialize if necessary
+        def maxRetries = vars.get("maxRetries")?.toInteger() ?: 5
+        def counterValue = vars.get("counterValue")?.toInteger() ?: 0
+        def statusValue = vars.get("statusValue")?.trim() ?: "" // Trim to avoid extra whitespace
+
+        // Log initial values
+        log.info("Initial counterValue: " + counterValue)
+        log.info("Initial statusValue: '" + statusValue + "'")
+        log.info("MaxRetries: " + maxRetries)
+
+        // Increment counterValue for each loop iteration
+        counterValue += 1
+        vars.put("counterValue", counterValue.toString())
+
+        // Log updated counter value
+        log.info("Updated counterValue: " + counterValue)
+
+        if (statusValue == "MEETING_SCHEDULE_REQUESTED" && counterValue <= maxRetries) {
+            log.info("Retrying request. Attempt #" + counterValue)
+            vars.put("retryCondition", "true") // Continue loop
+        } else {
+            log.info("Exiting loop. Status: '" + statusValue + "', Attempts: " + counterValue)
+            vars.put("retryCondition", "false") // Exit loop
+        }
+
+      </stringProp>
+    </JSR223Sampler>
+    <DebugSampler/>
+    <ViewResultsTree/>
+  </ThreadGroup>
+</TestPlan>

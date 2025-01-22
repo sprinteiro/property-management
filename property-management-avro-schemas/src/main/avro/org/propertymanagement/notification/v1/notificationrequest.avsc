@@ -1,0 +1,49 @@
+{
+  "namespace": "org.propertymanagement.notification.v1",
+  "type": "record",
+  "name": "NotificationRequest",
+  "doc": "Represents a notification to be sent",
+  "fields": [
+    {
+      "name": "notificationType",
+      "type": [
+        "null",
+        "string"
+      ],
+      "doc": "Notification type (association meeting, etc)",
+      "default": null
+    },
+    {
+      "name": "recipient",
+      "type": "org.propertymanagement.notification.v1.Recipient",
+      "doc": "Notification's recipient"
+    },
+    {
+      "name": "date",
+      "type": [
+        "null",
+        "string"
+      ],
+      "doc": "Meeting date",
+      "default": null
+    },
+    {
+      "name": "time",
+      "type": [
+        "null",
+        "string"
+      ],
+      "doc": "Meeting time",
+      "default": null
+    },
+    {
+      "name": "communityId",
+      "type": [
+        "null",
+        "long"
+      ],
+      "doc": "Community's identifier to which the recipient belongs",
+      "default": null
+    }
+  ]
+}
