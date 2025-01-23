@@ -36,3 +36,4 @@ build/
 /docker/volumes/
 /jmeter/.~lock.load_meetings.csv#
 /.mvn/
+/ssh
