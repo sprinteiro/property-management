@@ -37,4 +37,4 @@ build/
 /jmeter/.~lock.load_meetings.csv#
 /.mvn/
 /ssh
-/jmeter/log/
+/jmeter/log/**
