@@ -36,7 +36,7 @@ chown -R 1000:1000 ./docker/volumes/kafka
 
 # TODO: JMeter
 ```
-jmeter -n -t ./jmeter/property_management_1.jmx -l ./jmeter/result_jmeter.csv -j ./jmeter/jmeter.log
+jmeter -n -t ./jmeter/scripts/property_management_1.jmx -l ./jmeter/log/result_jmeter.csv -j ./jmeter/log/jmeter.log
 ```
 
 # Flow
