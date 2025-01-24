@@ -1,9 +1,11 @@
 package org.propertymanagement.associationmeeting.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,6 +56,14 @@ public class WebSecurityConfig {
                 .csrf(CsrfConfigurer::disable);
         // @formatter:on
         return http.build();
+    }
+
+
+    @Profile(value = { "h2" })
+    @Bean
+    WebSecurityCustomizer webSecurityCustomizer() {
+        // These URLs pass straight through, no checks
+        return web -> web.ignoring().requestMatchers("/h2-console/**");
     }
 
     @Bean
