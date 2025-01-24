@@ -34,9 +34,14 @@ chown -R 1000:1000 ./docker/volumes/kafka
 ```
 
 
-# TODO: JMeter
+# JMeter
+There are two thread groups:
+* Enabled: Data Load - Batch of new scheduled meetings. 
+  It creates scheduled meetings from data defined in `load_meetings.csv`.
+  The schedules could be either automatically approved (`meeting.approval.automatic=true`) or pending (`meeting.approval.automatic=false`)
+* TODO: It is disabled. Meeting Schedule Journey The idea is to implement meeting schedule journey with automatic or manual approval
 ```
-jmeter -n -t ./jmeter/scripts/property_management_1.jmx -l ./jmeter/log/result_jmeter.csv -j ./jmeter/log/jmeter.log
+jmeter -n -t ./jmeter/scripts/property_management_last.jmx -l ./jmeter/log/result_jmeter.csv -j ./jmeter/log/jmeter.log
 ```
 
 # Flow
