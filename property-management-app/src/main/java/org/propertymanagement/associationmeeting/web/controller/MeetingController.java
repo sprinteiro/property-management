@@ -1,5 +1,6 @@
 package org.propertymanagement.associationmeeting.web.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.associationmeeting.MeetingScheduler;
@@ -26,6 +27,7 @@ public class MeetingController {
 
     /*
         curl -v -H "Content-Type: application/json" -X GET http://localhost:8288/communities/1/trackers/48584f75-5021-47c2-9c86-7bc6880a3cd1
+        curl -v --user louis:louis -H "Content-Type: application/json" -X GET http://localhost:8288/communities/1/trackers/48584f75-5021-47c2-9c86-7bc6880a3cd1
      */
     @GetMapping(path = "/{communityId}/trackers/{trackerId}")
     public ResponseEntity<MeetingStatusDto> meetingStatus(@PathVariable Long communityId, @PathVariable String trackerId) {
@@ -44,9 +46,10 @@ public class MeetingController {
 
     /*
         curl -v -X POST 'http://localhost:8288/communities/1/meetings' -H "Content-Type: application/json" -d '{"date":"01/12/2024", "time":"19:00"}'
+        curl -v --user admin:admin -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/1/meetings' -d '{"date":"01/12/2024", "time":"19:00"}'
      */
     @PostMapping(path = "/{communityId}/meetings")
-    public ResponseEntity<MeetingStatusDto> newMeeting(@PathVariable Long communityId, @RequestBody MeetingRequestDto meetingRequest) {
+    public ResponseEntity<MeetingStatusDto> newMeeting(@PathVariable Long communityId, @Valid @RequestBody MeetingRequestDto meetingRequest) {
         log.info("Received new meeting. CommunityId={} Request={}", communityId, meetingRequest);
         MeetingInvite meetingInvite = new MeetingInvite(
                 new CommunityId(communityId),
@@ -63,15 +66,18 @@ public class MeetingController {
                 .created(uri)
                 .body(MeetingStatusDto.builder()
                         .status(MeetingStatusDto.TrackingStatus.MEETING_SCHEDULE_REQUESTED)
-                        .description("Association meeting creation has been requested.").build()
+                        .description("Association meeting creation has been requested.")
+                        .trackerId(meetingInvite.getTrackerId().toString())
+                        .build()
                 );
     }
 
     /*
         curl -v -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/1/trackers/3fe5ba9a-d073-44cb-a2c6-c15a6afae40e' -d '{"approverId":"1"}'
+        curl -v --user president:president -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/1/trackers/3fe5ba9a-d073-44cb-a2c6-c15a6afae40e' -d '{"approverId":"1"}'
      */
     @PostMapping(path = "/{communityId}/trackers/{trackerId}")
-    public ResponseEntity<MeetingStatusDto> approveMeeting(@PathVariable Long communityId, @PathVariable String trackerId, @RequestBody MeetingApprovalRequestDto approvalRequest) {
+    public ResponseEntity<MeetingStatusDto> approveMeeting(@PathVariable Long communityId, @PathVariable String trackerId, @Valid @RequestBody MeetingApprovalRequestDto approvalRequest) {
         log.info("Received new meeting approval. CommunityId={} Request={}", communityId, approvalRequest);
         ApprovalMeetingInvite approval = new ApprovalMeetingInvite(
                 new CommunityId(communityId),
@@ -89,9 +95,10 @@ public class MeetingController {
     /*
         curl -v -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/resendinvite' -d '{"communityId":"1", "trackerId":"62a60a71-fb86-49b3-af0d-ed796020d9df", "action":"FOR_APPROVAL"}'
         curl -v -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/resendinvite' -d '{"communityId":"1", "trackerId":"62a60a71-fb86-49b3-af0d-ed796020d9df", "action":"TO_PARTICIPANTS"}'
+        curl -v --user admin:admin -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/resendinvite' -d '{"communityId":"1", "trackerId":"62a60a71-fb86-49b3-af0d-ed796020d9df", "action":"TO_PARTICIPANTS"}'
      */
     @PostMapping(path = "/resendinvite")
-    public ResponseEntity<MeetingStatusDto> resendMeetingInvite(@RequestBody ResendInviteDto resendInvite) {
+    public ResponseEntity<MeetingStatusDto> resendMeetingInvite(@Valid @RequestBody ResendInviteDto resendInvite) {
         Long communityId = resendInvite.getCommunityId();
         String trackerId = resendInvite.getTrackerId();
         log.info("Received resend invite request for {}. CommunityId={} TrackingId={}", resendInvite.getAction(), communityId, trackerId);

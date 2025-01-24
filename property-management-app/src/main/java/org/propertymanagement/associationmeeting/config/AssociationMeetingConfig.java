@@ -8,10 +8,7 @@ import org.propertymanagement.associationmeeting.notifier.ManualMeetingNotifier;
 import org.propertymanagement.associationmeeting.repository.MeetingRepository;
 import org.propertymanagement.associationmeeting.repository.TrackerIdRepository;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
-import org.propertymanagement.notification.DefaultNotificationManager;
-import org.propertymanagement.notification.EmailNotificationSender;
-import org.propertymanagement.notification.NotificationManager;
-import org.propertymanagement.notification.SmsNotificationSender;
+import org.propertymanagement.notification.*;
 import org.propertymanagement.util.CorrelationIdLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +18,17 @@ import org.springframework.context.annotation.Import;
 import java.util.concurrent.Executor;
 
 @Configuration
-@Import(value = {NotificationConfig.class, RepositoriesConfig.class, WebConfig.class, KafkaConfig.class, LogConfig.class, EmailConfig.class, SmsConfig.class})
+@Import(value = {
+        NotificationConfig.class,
+        RepositoriesConfig.class,
+        WebConfig.class,
+        WebSecurityConfig.class,
+        KafkaConfig.class,
+        LogConfig.class,
+        EmailConfig.class,
+        SmsConfig.class,
+        WebNotificationMeetingConfig.class
+})
 public class AssociationMeetingConfig {
     @Bean
     public MeetingNotification manualMeetingNotifier(NotificationManager notificationManager, MeetingRepository meetingRepository, CorrelationIdLog correlationIdLog) {

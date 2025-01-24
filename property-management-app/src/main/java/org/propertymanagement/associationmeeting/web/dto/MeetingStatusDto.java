@@ -14,6 +14,7 @@ public class MeetingStatusDto {
     private TrackingStatus status;
     private String approvalDateTime;
     private String description;
+    private String trackerId;
 
 
     public enum TrackingStatus {

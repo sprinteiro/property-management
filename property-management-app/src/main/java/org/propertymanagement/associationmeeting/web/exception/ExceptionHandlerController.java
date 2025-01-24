@@ -18,12 +18,14 @@ import java.time.format.DateTimeFormatter;
 @RestControllerAdvice(basePackageClasses = NoOpController.class)
 public class ExceptionHandlerController {
 
+    public static final String API_ERROR_UNABLE_TO_PROCESS_THE_REQUEST = "Unable to process the request";
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> defaultError(Exception exception, WebRequest request) {
         logException(exception, request);
         var error = new ErrorMessage(HttpStatus.BAD_REQUEST.value(),
                 request.getDescription(false).replace("uri=", ""),
-                "Unable to process the request"
+                API_ERROR_UNABLE_TO_PROCESS_THE_REQUEST
         );
         return ResponseEntity.badRequest().body(error);
     }
