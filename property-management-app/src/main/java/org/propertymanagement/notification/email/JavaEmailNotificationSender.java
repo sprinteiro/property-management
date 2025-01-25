@@ -47,7 +47,8 @@ public class JavaEmailNotificationSender implements EmailNotificationSender {
             log.info("Sent via Java e-mail E-mail={}", ((SimpleMailMessage) emailToSent).getTo()[0]);
             return true;
         } catch (Exception e) {
-            throw new NotificationException(recipient.id().value(), e.getMessage(), null, e);
+            String errorMessage = String.format("Error: %s Cause: %s", e.getMessage(), e.getCause());
+            throw new NotificationException(recipient.id().value(), errorMessage, null, e);
         }
     }
 }
