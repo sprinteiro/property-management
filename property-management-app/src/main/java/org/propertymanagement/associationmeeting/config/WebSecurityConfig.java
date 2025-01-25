@@ -1,5 +1,8 @@
 package org.propertymanagement.associationmeeting.config;
 
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
@@ -15,7 +18,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -24,15 +26,13 @@ public class WebSecurityConfig {
     public static final String ROLE_COMMUNITY_VICEPRESIDENT = "COMMUNITY_VICEPRESIDENT";
     public static final String ROLE_COMMUNITY_ADMIN = "COMMUNITY_ADMIN";
     public static final String ROLE_SUPERADMIN = "SUPERADMIN";
+    public static final String ROLE_ACTUATOR = "ACTUATOR";
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers(HttpMethod.GET, "/test/notifications/lookup")
-                            .hasRole(ROLE_COMMUNITY_ADMIN));
         // @formatter:off
         http.authorizeHttpRequests((authz) -> authz
-                        .requestMatchers(HttpMethod.GET, "/test/notifications/**")
+                        .requestMatchers(HttpMethod.GET, "/test/notifications/lookup")
                             .hasAnyRole(ROLE_COMMUNITY_MEMBER, ROLE_COMMUNITY_VICEPRESIDENT, ROLE_COMMUNITY_PRESIDENT, ROLE_COMMUNITY_ADMIN, ROLE_SUPERADMIN)
                         .requestMatchers(HttpMethod.POST, "/test/notifications/**")
                             .hasAnyRole(ROLE_COMMUNITY_ADMIN)
@@ -47,9 +47,14 @@ public class WebSecurityConfig {
                         // Approve meeting schedule
                         .requestMatchers(HttpMethod.POST, "/communities/{communityId}/trackers/{trackerId}")
                             .hasAnyRole(ROLE_COMMUNITY_PRESIDENT, ROLE_SUPERADMIN)
-                        .anyRequest().denyAll())
+//                        // Actuator health and info endpoint allow all to access
+                        .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
+//                        // Rest of Actuator endpoints requires Actuator role
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole(ROLE_ACTUATOR)
+                        .anyRequest()
+                            .denyAll())
 //                 No session
-                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+//                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
 //                 HTTP Basic authentication
                 .httpBasic(withDefaults())
 //                 API is stateless, no CSRF token
@@ -59,7 +64,7 @@ public class WebSecurityConfig {
     }
 
 
-    @Profile(value = { "h2" })
+    @Profile(value = {"h2"})
     @Bean
     WebSecurityCustomizer webSecurityCustomizer() {
         // These URLs pass straight through, no checks
@@ -79,9 +84,12 @@ public class WebSecurityConfig {
         UserDetails admin = User.withUsername("admin").password(passwordEncoder.encode("admin"))
                 .roles(ROLE_COMMUNITY_ADMIN).build();
         UserDetails superadmin = User.withUsername("superadmin").password(passwordEncoder.encode("superadmin"))
-                .roles(ROLE_SUPERADMIN).build();
+                .roles(ROLE_SUPERADMIN, ROLE_ACTUATOR).build();
+        UserDetails monitoring = User.withUsername("monitoring").password(passwordEncoder.encode("monitoring"))
+                .roles(ROLE_ACTUATOR)
+                .build();
 
-        return new InMemoryUserDetailsManager(markUser, louisUser, presidentUser, vicepresidentUser, admin, superadmin);
+        return new InMemoryUserDetailsManager(markUser, louisUser, presidentUser, vicepresidentUser, admin, superadmin, monitoring);
     }
 
     @Bean
