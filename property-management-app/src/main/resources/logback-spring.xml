@@ -11,12 +11,10 @@
     </appender>
 
     <appender name="SAVE-TO-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/home/jj/IdeaProjects/property-management/docker/log/property-management.log</file>
+        <file>${APP_LOG}/log/property-management.log</file>
         <immediateFlush>true</immediateFlush>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>
-                /home/jj/IdeaProjects/property-management/docker/log/property-management-%d{yyyy-MM-dd}.log
-            </fileNamePattern>
+            <fileNamePattern>${APP_LOG}/log/property-management-%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>1</maxHistory><!-- log file will override after one day-->
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">

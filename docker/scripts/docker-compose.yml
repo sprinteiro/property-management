@@ -17,7 +17,31 @@ volumes:
 networks:
   kafka-network:
     driver: bridge
+    name: kafka-network
 services:
+#  property-management:
+#    image: propertymanagement.org/property-management
+#    container_name: property-management
+#    build:
+#      context: ../..
+#      # Where is the Dockerfile kept for property management application, relative to root context
+#      dockerfile: ./docker/property-management/Dockerfile
+#    ports:
+#      - "8288:8288"
+#      - "8289:8289"
+#    depends_on:
+#      - database
+#    environment:
+#      SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL: 'http://schema-registry:9021'
+#      SPRING_DATASOURCE_URL: 'jdbc:mysql://database:3306/propertymanagement'
+#      SPRING_USERNAME: root
+#      SPRING_PASSWORD: password
+#      APP_LOG: "/app"
+#    volumes:
+#      - "../log/:/app/log/"  # Map the host directory to the container's /app/logs
+#    # the virtual network of which this container will be a part of
+#    networks:
+#      - kafka-network
   kafka1:
     image: confluentinc/cp-kafka
     container_name: kafka1
