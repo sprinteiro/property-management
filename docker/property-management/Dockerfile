@@ -20,7 +20,7 @@ RUN groupadd --system spring && useradd --system -g spring spring
 # Set the working directory inside the runtime container
 WORKDIR /app
 # Change to the non-root user
-USER spring:spring
+#USER spring:spring
 # Copy the built JAR file from the builder stage
 # Replace `property-management-app/target/*.jar` with the appropriate module and final JAR path if necessary.
 COPY --from=build /app/property-management-app/target/*.jar application.jar

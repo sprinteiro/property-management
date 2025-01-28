@@ -31,15 +31,19 @@ services:
 #      - "8289:8289"
 #    depends_on:
 #      - database
+#      - kafka1
+#      - kafka2
+#      - kafka3
+#      - schema-registry
 #    environment:
-#      SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL: 'http://schema-registry:9021'
-#      SPRING_DATASOURCE_URL: 'jdbc:mysql://database:3306/propertymanagement'
-#      SPRING_USERNAME: root
-#      SPRING_PASSWORD: password
-#      APP_LOG: "/app"
+#      - SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL=http://schema-registry:9021
+#      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/propertymanagement
+#      - SPRING_USERNAME=root
+#      - SPRING_PASSWORD=password
+#      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka1:9092,kafka2:9093,kafka3:9094
+#      - APP_LOG=/app
 #    volumes:
 #      - "../log/:/app/log/"  # Map the host directory to the container's /app/logs
-#    # the virtual network of which this container will be a part of
 #    networks:
 #      - kafka-network
   kafka1:
@@ -115,7 +119,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
     volumes:
       - volume3:/bitnami/kafka
     networks:
@@ -150,7 +153,7 @@ services:
       - kafka3
       - schema-registry
     environment:
-      - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka1:29092,kafka2:29092,kafka3:29092,
+      - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka1:29092,kafka2:29092,kafka3:29092
       - KAFKA_CLUSTERS_0_NAME=ciWo7IWazngRchmPES6q5A==
       - KAFKA_CLUSTERS_0_SCHEMAREGISTRY=http://schema-registry:9021
     networks:

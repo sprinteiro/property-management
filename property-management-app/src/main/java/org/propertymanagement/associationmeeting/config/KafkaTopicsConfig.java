@@ -1,17 +1,10 @@
 package org.propertymanagement.associationmeeting.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
 import org.springframework.kafka.config.TopicBuilder;
-import org.springframework.kafka.core.KafkaAdmin;
-
-import java.util.Map;
 
 @ConditionalOnProperty(name = "kafka.topic.creation", havingValue = "on")
 @Slf4j
@@ -22,17 +15,6 @@ public class KafkaTopicsConfig {
     public static final String TOPIC_MEETING_REGISTRATION_REQUEST = "meeting-registration-request";
     public static final String TOPIC_MEETING_APPROVAL_REQUEST = "meeting-approval-request";
     public static final String TOPIC_NOTIFICATION_REQUEST = "notification-request";
-    @Value("${spring.kafka.producer.bootstrap-servers:default_brokers}")
-    private String bootstrapServers;
-    @Autowired
-    private Environment environment;
-
-    @Bean
-    public KafkaAdmin admin() {
-        KafkaAdmin kafkaAdmin = new KafkaAdmin(Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers));
-        log.info("Set KafkaAdmin {}", kafkaAdmin.getConfigurationProperties());
-        return kafkaAdmin;
-    }
 
     @Bean
     public NewTopic meetingRequest() {
