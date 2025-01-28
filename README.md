@@ -9,6 +9,10 @@ Run in detached mode
 ```
 docker-compose -f ./docker/scripts/docker-compose.yml up -d --remove-orphans
 ```
+If you only want to start up the infrastructure as testing locally with your IDE or via `spring-boot-maven-plugin`
+docker-compose with `docker-compose-local.yml` file instead.
+* `docker-compose -f ./docker/scripts/docker-compose-local.yml up -d --remove-orphans`
+* `mvn -pl property-management-app spring-boot:run`
 ### Shutdown
 ```
 cd property-management

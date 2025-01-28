@@ -1,4 +1,4 @@
-# Starts up the stack with application services for local testing purposes
+# Starts up the stack WITHOUT application services for local testing purposes
 volumes:
   volume1:
   volume2:
@@ -20,34 +20,6 @@ networks:
     driver: bridge
     name: kafka-network
 services:
-  property-management:
-    image: propertymanagement.org/property-management
-    container_name: property-management
-    build:
-      context: ../..
-      # Where is the Dockerfile kept for property management application, relative to root context
-      dockerfile: ./docker/property-management/Dockerfile
-    ports:
-      - "8288:8288"
-      - "8289:8289"
-    depends_on:
-      - database
-      - kafka1
-      - kafka2
-      - kafka3
-      - schema-registry
-    environment:
-      - SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL=http://schema-registry:9021
-      - SPRING_DATASOURCE_URL=jdbc:mysql://database:3306/propertymanagement
-      - SPRING_USERNAME=root
-      - SPRING_PASSWORD=password
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka1:9092,kafka2:9093,kafka3:9094
-      - APP_LOG=/app
-    volumes:
-      - "../log:/app/log"
-    command: ["sh", "-c", "chown -R spring:spring /app/log && exec java -jar application.jar"]
-    networks:
-      - kafka-network
   kafka1:
     image: confluentinc/cp-kafka
     container_name: kafka1
@@ -58,8 +30,8 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
-      KAFKA_LISTENERS: 'INTERNAL://kafka1:29092,CONTROLLER://kafka1:29093,EXTERNAL://kafka1:9092'
-      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka1:29092,EXTERNAL://kafka1:9092'
+      KAFKA_LISTENERS: 'INTERNAL://kafka1:29092,CONTROLLER://kafka1:29093,EXTERNAL://0.0.0.0:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka1:29092,EXTERNAL://localhost:9092'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:29093,2@kafka2:29093,3@kafka3:29093'
       KAFKA_PROCESS_ROLES: 'broker,controller'
@@ -85,8 +57,8 @@ services:
       KAFKA_NODE_ID: 2
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
-      KAFKA_LISTENERS: 'INTERNAL://kafka2:29092,CONTROLLER://kafka2:29093,EXTERNAL://kafka2:9093'
-      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka2:29092,EXTERNAL://kafka2:9093'
+      KAFKA_LISTENERS: 'INTERNAL://kafka2:29092,CONTROLLER://kafka2:29093,EXTERNAL://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka2:29092,EXTERNAL://localhost:9093'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:29093,2@kafka2:29093,3@kafka3:29093'
       KAFKA_PROCESS_ROLES: 'broker,controller'
@@ -111,8 +83,8 @@ services:
       KAFKA_NODE_ID: 3
       KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT'
-      KAFKA_LISTENERS: 'INTERNAL://kafka3:29092,CONTROLLER://kafka3:29093,EXTERNAL://kafka3:9094'
-      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka3:29092,EXTERNAL://kafka3:9094'
+      KAFKA_LISTENERS: 'INTERNAL://kafka3:29092,CONTROLLER://kafka3:29093,EXTERNAL://0.0.0.0:9094'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka3:29092,EXTERNAL://localhost:9094'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'INTERNAL'
       KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:29093,2@kafka2:29093,3@kafka3:29093'
       KAFKA_PROCESS_ROLES: 'broker,controller'

@@ -16,11 +16,15 @@ RUN ./mvnw -B clean package -DskipTests
 # Stage 2: Run the application
 FROM eclipse-temurin:21-jre-jammy AS runtime
 # Create a non-root user for running the app
-RUN groupadd --system spring && useradd --system -g spring spring
+RUN groupadd --gid 1000 spring && useradd --uid 1000 --gid spring spring
+
 # Set the working directory inside the runtime container
 WORKDIR /app
+# Pre-create the log directory, ensure the `spring` user can write to it
+RUN mkdir -p /app/log && chown -R spring:spring /app/log && chmod -R 775 /app/log
+
 # Change to the non-root user
-#USER spring:spring
+USER spring:spring
 # Copy the built JAR file from the builder stage
 # Replace `property-management-app/target/*.jar` with the appropriate module and final JAR path if necessary.
 COPY --from=build /app/property-management-app/target/*.jar application.jar
