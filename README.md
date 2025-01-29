@@ -21,7 +21,7 @@ Run in detached mode
 docker-compose -f ./docker/scripts/docker-compose.yml up -d --remove-orphans
 ```
 If you only want to start up the infrastructure as testing locally with your IDE or via `spring-boot-maven-plugin`
-docker-compose with `docker-compose-local.yml` file instead.
+use `docker-compose-local.yml` file instead.
 * `docker-compose -f ./docker/scripts/docker-compose-local.yml up -d --remove-orphans`
 * `mvn -pl property-management-app spring-boot:run`
 ## Shutdown
@@ -69,7 +69,7 @@ The schedule meeting approval process in the flow can be either automatic (defau
 any manual acceptance of the approval by the community's president) or manual.
 Once the meeting is approved the workflow will automatically notify to all community members via e-mail or SMS.
 * Property to configure the approval process: `meeting.approval.automatic=true`
-Kafka topics used by the application will be automatically created at startup time if `kafka.topic.creation=on`
+* Kafka topics used by the application will be automatically created at startup time if `kafka.topic.creation=on`
 
 #### 1. Create a new meeting invite
 If the approval is manual, the Community's president will receive an approval notification message via e-mail and/or SMS
@@ -171,6 +171,9 @@ Note: Unnecessary use of -X or --request, POST is already inferred.
 
 
 # Integrations
+## REST API
+The application provides REST endpoints for registering a new meeting schedule, approve a registered meeting and resend meeting invitations.
+
 ## SMS
 The application uses Twilio API and its provider. 
 The following environment variables must be provided.
