@@ -47,14 +47,20 @@ public class WebSecurityConfig {
                         // Approve meeting schedule
                         .requestMatchers(HttpMethod.POST, "/communities/{communityId}/trackers/{trackerId}")
                             .hasAnyRole(ROLE_COMMUNITY_PRESIDENT, ROLE_SUPERADMIN)
-//                        // Actuator health and info endpoint allow all to access
-                        .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class)).permitAll()
-//                        // Rest of Actuator endpoints requires Actuator role
-                        .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole(ROLE_ACTUATOR)
+                        // Actuator health and info endpoints allow access to all
+                        .requestMatchers(EndpointRequest.to(HealthEndpoint.class, InfoEndpoint.class))
+                            .permitAll()
+                        // Rest of Actuator endpoints requires Actuator role
+                        .requestMatchers(EndpointRequest.toAnyEndpoint())
+                            .hasRole(ROLE_ACTUATOR)
+                        // Swagger UI allow access to all
+                        .requestMatchers(HttpMethod.GET,
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html")
+                            .permitAll()
                         .anyRequest()
                             .denyAll())
-//                 No session
-//                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
 //                 HTTP Basic authentication
                 .httpBasic(withDefaults())
 //                 API is stateless, no CSRF token

@@ -1,5 +1,7 @@
 package org.propertymanagement.notification.web.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -29,7 +31,10 @@ import java.util.List;
 @RequestMapping(path = "/test/notifications", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = NotificationController.NOTIFICATION_CONTROLLER_TAG, description = "API for testing send notifications")
+@Hidden
 public class NotificationController {
+    public static final String NOTIFICATION_CONTROLLER_TAG = "NotificationController";
     private final CorrelationIdLog correlationIdLog;
     private final MeetingScheduler meetingScheduler;
 
