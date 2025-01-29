@@ -1,6 +1,17 @@
-# Kafka cluster
-## Commands
-### Start up
+# Functionalities
+This application covers the following use cases for Neighborhood Association Meetings:
+* Schedule a new association meeting by the neighbourhood's administrator with either 
+  automatic approval on behalf of the current neighborhood's president or manually by the president once 
+  received the meeting's notification via SMS or e-mail.
+* Notifications management: resend notifications for an already registered meeting to the president for approval 
+  or to all meeting's participants (administrator, president, vicepresident or rest of neighbours).
+
+# Commands
+<a id="start-up-the-runtime"></a>
+## Start up the runtime
+To start up all dependencies required by the runtime `docker-compose.yml` script is used.
+It spins up a docker container per required dependency such as database, Kafka cluster, ELK (log aggregation) 
+and property management application.
 ```
 cd property-management
 docker-compose -f ./docker/scripts/docker-compose.yml up --remove-orphans
@@ -13,11 +24,15 @@ If you only want to start up the infrastructure as testing locally with your IDE
 docker-compose with `docker-compose-local.yml` file instead.
 * `docker-compose -f ./docker/scripts/docker-compose-local.yml up -d --remove-orphans`
 * `mvn -pl property-management-app spring-boot:run`
-### Shutdown
+## Shutdown
 ```
 cd property-management
 docker-compose -f ./docker/scripts/docker-compose.yml down --remove-orphans
 ```
+## Start up only the application
+It is assumed the infrastructure runtime is up and running (refer to [Start up the runtime](#start-up-the-runtime)).
+
+`property-management$ ./mvnw -pl property-management-app spring-boot:run`
 
 ## Create topics
 Once the Kafka cluster is running.
@@ -30,11 +45,11 @@ docker exec -it kafka1 /bin/bash
 docker logs --follow kafka1
 ```
 
-### Volumes for Kafka brokers
+## Volumes for Kafka brokers
 ```
 cd property-management
-mkdir -p ./docker/volumes/kafka
-chown -R 1000:1000 ./docker/volumes/kafka
+sudo mkdir -p ./docker/volumes/kafka
+sudo chown -R 1000:1000 ./docker/volumes/kafka
 ```
 
 
@@ -186,7 +201,7 @@ Events are produced by the application and published into topics to be consumed 
 * Topics to be created at startup time: `kafka.topic.creation=on`
 
 ## Avro registry
-Avro registry keeps track of Kafka message versions defined in avsc files in module property-management-avro-schemas
+Avro registry keeps track of Kafka messages' versions defined in avsc files in module `property-management-avro-schemas`
  
 # Testing
 ## Test SMS and/or E-mail notification errors
@@ -204,7 +219,7 @@ Start up the application with local Spring profile (`-Dspring.profiles.active=lo
 # Application architecture
 The architecture follows the basic principles of Clean Architecture.
 
-For more details refer to [https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html]("Clean Architecture")
+For more details refer to [https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html]
 Main modules:
 * property-management-business-core: Property Management business rules like the business domain reusable and technology agnostic.
 * property-management-business-app: Specific application business rules, use cases (meetings, notifications, community members).
@@ -216,9 +231,14 @@ Basic application architecture diagram produced with Exalidraw (https://excalidr
 ![doc/property-management-diagram.png](doc/property-management-diagram.png "Property management diagram")
 
 
-
-# Startup the application
-`property-management$ ./mvnw -pl property-management-app spring-boot:run`
+# Requirements
+This application has been tested with the following tech stack:
+* Operating System: Ubuntu 22.04.5
+* Java version: OpenJDK 21.0.5
+* Apache Maven 3.9.9
+* Docker version 27.5.1
+* docker-compose version 1.29.2
+* Apache JMeter 5.6.3
 
 # Issues
 ## Elastic search
