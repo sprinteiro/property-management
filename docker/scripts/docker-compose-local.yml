@@ -1,8 +1,8 @@
 # Starts up the stack WITHOUT application services for local testing purposes
 volumes:
-  volume1:
-  volume2:
-  volume3:
+  kafka1:
+  kafka2:
+  kafka3:
   certs:
     driver: local
   esdata01:
@@ -42,7 +42,7 @@ services:
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
     volumes:
-      - volume1:/bitnami/kafka
+      - kafka1:/bitnami/kafka
       - "./create-topics.sh:/home/appuser/create-topics.sh"
     networks:
       - kafka-network
@@ -69,7 +69,7 @@ services:
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
     volumes:
-      - volume2:/bitnami/kafka
+      - kafka2:/bitnami/kafka
     networks:
       - kafka-network
 
@@ -94,7 +94,7 @@ services:
       CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
     volumes:
-      - volume3:/bitnami/kafka
+      - kafka3:/bitnami/kafka
     networks:
       - kafka-network
 
