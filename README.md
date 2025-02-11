@@ -52,7 +52,6 @@ sudo mkdir -p ./docker/volumes/kafka
 sudo chown -R 1000:1000 ./docker/volumes/kafka
 ```
 
-
 # JMeter
 There are two thread groups:
 * Enabled: Data Load - Batch of new scheduled meetings. 
