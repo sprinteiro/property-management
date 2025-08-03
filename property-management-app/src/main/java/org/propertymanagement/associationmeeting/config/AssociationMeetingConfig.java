@@ -12,15 +12,13 @@ import org.propertymanagement.notification.*;
 import org.propertymanagement.util.CorrelationIdLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.util.concurrent.Executor;
 
-@Configuration
 @Import(value = {
         NotificationConfig.class,
-        RepositoriesConfig.class,
+        JpaRepositoriesConfig.class,
         WebConfig.class,
         WebSecurityConfig.class,
         KafkaConfig.class,

@@ -1,7 +1,6 @@
 package org.propertymanagement.associationmeeting.repository;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,6 @@ import org.propertymanagement.associationmeeting.repository.entities.*;
 import org.propertymanagement.domain.*;
 import org.propertymanagement.domain.Participant.ParticipantRole;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -24,11 +22,9 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-@Repository
 @RequiredArgsConstructor
 @Slf4j
 public class JpaMeetingRepository implements MeetingRepository {
-    @PersistenceContext
     private final EntityManager entityManager;
     private final NeighbourRepository neighbourRepository;
 

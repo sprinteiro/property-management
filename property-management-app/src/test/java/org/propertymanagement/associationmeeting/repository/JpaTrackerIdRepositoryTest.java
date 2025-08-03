@@ -2,13 +2,13 @@ package org.propertymanagement.associationmeeting.repository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.propertymanagement.associationmeeting.config.LogConfig;
+import org.propertymanagement.associationmeeting.config.JpaRepositoriesConfig;
 import org.propertymanagement.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -48,9 +48,9 @@ public class JpaTrackerIdRepositoryTest {
                 .returns(MEETING_TIME.value(), invite -> invite.getTime().value());
     }
 
-    @TestConfiguration
-    @Import({LogConfig.class})
-    @ComponentScan(basePackages = "org.propertymanagement.associationmeeting.repository")
+    @Configuration
+    @EnableAutoConfiguration
+    @Import({ JpaRepositoriesConfig.class })
     static class JpaConfiguration {
     }
 }

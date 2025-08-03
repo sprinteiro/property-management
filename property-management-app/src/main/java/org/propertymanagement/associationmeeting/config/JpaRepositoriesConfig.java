@@ -6,10 +6,12 @@ import org.propertymanagement.associationmeeting.repository.entities.NoOpEntity;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 
 @EntityScan(basePackageClasses = { NoOpEntity.class })
-public class RepositoriesConfig {
+@ComponentScan(basePackageClasses = NoOpJpaRepositories.class)
+public class JpaRepositoriesConfig {
     @Bean
     public MeetingRepository jpaMeetingRepository(EntityManager entityManager, NeighbourRepository neighbourRepository) {
         return new JpaMeetingRepository(entityManager, neighbourRepository);

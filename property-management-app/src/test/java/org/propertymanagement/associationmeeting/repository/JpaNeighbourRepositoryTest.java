@@ -2,15 +2,15 @@ package org.propertymanagement.associationmeeting.repository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.propertymanagement.associationmeeting.config.LogConfig;
+import org.propertymanagement.associationmeeting.config.JpaRepositoriesConfig;
 import org.propertymanagement.domain.NeighbourgId;
 import org.propertymanagement.domain.Participant;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
@@ -23,8 +23,6 @@ import static org.propertymanagement.domain.Participant.ParticipantRole.PRESIDEN
         "debug=false"
 })
 public class JpaNeighbourRepositoryTest {
-    private static final String APPROVAL_MEETING_DATE = "29/11/2024";
-    private static final String APPROVAL_MEETING_TIME = "10:00";
     @Autowired
     private TestEntityManager jpaEntityManager;
     @Autowired
@@ -42,9 +40,9 @@ public class JpaNeighbourRepositoryTest {
                 .returns(neighbourId.value(), participant -> participant.id().value());
     }
 
-    @TestConfiguration
-    @Import({ LogConfig.class })
-    @ComponentScan(basePackages = "org.propertymanagement.associationmeeting.repository")
+    @Configuration
+    @EnableAutoConfiguration
+    @Import({ JpaRepositoriesConfig.class })
     static class JpaConfiguration {
     }
 }
