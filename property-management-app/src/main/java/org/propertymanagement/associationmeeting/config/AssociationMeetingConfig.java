@@ -18,7 +18,7 @@ import java.util.concurrent.Executor;
 
 @Import(value = {
         NotificationConfig.class,
-        JpaRepositoriesConfig.class,
+        JpaAssociationMeetingRepositoriesConfig.class,
         WebConfig.class,
         WebSecurityConfig.class,
         KafkaConfig.class,

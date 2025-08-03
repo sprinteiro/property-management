@@ -1,4 +1,4 @@
-package org.propertymanagement.associationmeeting.repository.entities;
+package org.propertymanagement.associationmeeting.persistence.jpa.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

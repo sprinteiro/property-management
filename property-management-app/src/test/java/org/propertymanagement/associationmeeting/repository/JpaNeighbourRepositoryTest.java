@@ -2,7 +2,7 @@ package org.propertymanagement.associationmeeting.repository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.propertymanagement.associationmeeting.config.JpaRepositoriesConfig;
+import org.propertymanagement.associationmeeting.config.JpaAssociationMeetingRepositoriesConfig;
 import org.propertymanagement.domain.NeighbourgId;
 import org.propertymanagement.domain.Participant;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
@@ -42,7 +42,7 @@ public class JpaNeighbourRepositoryTest {
 
     @Configuration
     @EnableAutoConfiguration
-    @Import({ JpaRepositoriesConfig.class })
+    @Import({ JpaAssociationMeetingRepositoriesConfig.class })
     static class JpaConfiguration {
     }
 }

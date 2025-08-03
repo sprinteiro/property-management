@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.propertymanagement.associationmeeting.repository.entities.Neighbour;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.Neighbour;
 import org.propertymanagement.domain.*;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,7 @@ import static org.propertymanagement.domain.Participant.ParticipantRole.*;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JpaNeighbourRepository implements NeighbourRepository {
+public class    JpaNeighbourRepository implements NeighbourRepository {
     private final EntityManager entityManager;
 
 

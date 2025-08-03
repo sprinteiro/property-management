@@ -3,7 +3,7 @@ package org.propertymanagement.associationmeeting.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
-import org.propertymanagement.associationmeeting.repository.entities.MeetingTracker;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTracker;
 import org.propertymanagement.domain.*;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;

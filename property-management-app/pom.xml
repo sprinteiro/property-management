@@ -16,6 +16,11 @@
     <dependencies>
         <dependency>
             <groupId>org.propertymanagement</groupId>
+            <artifactId>property-management-app-persistence-jpa-entity</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.propertymanagement</groupId>
             <artifactId>property-management-business-app</artifactId>
             <version>${project.version}</version>
         </dependency>

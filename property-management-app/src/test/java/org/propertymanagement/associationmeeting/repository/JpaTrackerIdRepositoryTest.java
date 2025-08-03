@@ -2,7 +2,7 @@ package org.propertymanagement.associationmeeting.repository;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.propertymanagement.associationmeeting.config.JpaRepositoriesConfig;
+import org.propertymanagement.associationmeeting.config.JpaAssociationMeetingRepositoriesConfig;
 import org.propertymanagement.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -50,7 +50,7 @@ public class JpaTrackerIdRepositoryTest {
 
     @Configuration
     @EnableAutoConfiguration
-    @Import({ JpaRepositoriesConfig.class })
+    @Import({ JpaAssociationMeetingRepositoriesConfig.class })
     static class JpaConfiguration {
     }
 }
