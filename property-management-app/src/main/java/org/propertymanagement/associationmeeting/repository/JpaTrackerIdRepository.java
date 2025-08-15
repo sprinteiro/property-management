@@ -3,7 +3,7 @@ package org.propertymanagement.associationmeeting.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTracker;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTrackerEntity;
 import org.propertymanagement.domain.*;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ public class JpaTrackerIdRepository implements TrackerIdRepository {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void register(MeetingInvite meetingInvite) {
-        MeetingTracker entity = new MeetingTracker();
+        MeetingTrackerEntity entity = new MeetingTrackerEntity();
         entity.setTrackerId(meetingInvite.toString());
         entity.setTrackerId(meetingInvite.getTrackerId().toString());
         entity.setCommunityId(meetingInvite.getCommunityId().value());
@@ -30,8 +30,8 @@ public class JpaTrackerIdRepository implements TrackerIdRepository {
     @Transactional(readOnly = true)
     @Override
     public MeetingInvite fetchMeetingInvite(TrackerId trackerId) {
-        TypedQuery<MeetingTracker> query = entityManager.createQuery(
-                "SELECT mt FROM MeetingTracker mt WHERE mt.trackerId = :trackerId", MeetingTracker.class);
+        TypedQuery<MeetingTrackerEntity> query = entityManager.createQuery(
+                "SELECT mt FROM MeetingTracker mt WHERE mt.trackerId = :trackerId", MeetingTrackerEntity.class);
         query.setParameter("trackerId", trackerId.toString());
 
         return query.getResultStream().findFirst().map(entity ->

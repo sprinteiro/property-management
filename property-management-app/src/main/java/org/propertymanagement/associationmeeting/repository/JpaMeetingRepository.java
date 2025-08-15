@@ -5,11 +5,11 @@ import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.associationmeeting.exception.MeetingScheduleException;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.AssociationMeeting;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.Community;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingParticipant;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTracker;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.Neighbour;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.AssociationMeetingEntity;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.CommunityEntity;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingParticipantEntity;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTrackerEntity;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.NeighbourEntity;
 import org.propertymanagement.domain.CommunityId;
 import org.propertymanagement.domain.MeetingDate;
 import org.propertymanagement.domain.MeetingInvite;
@@ -42,44 +42,44 @@ public class JpaMeetingRepository implements MeetingRepository {
     @Transactional
     @Override
     public void registerMeetingInvite(MeetingInvite newMeetingInvite) {
-        Community community = entityManager.find(Community.class, newMeetingInvite.getCommunityId().value());
+        CommunityEntity community = entityManager.find(CommunityEntity.class, newMeetingInvite.getCommunityId().value());
         if (isNull(community)) {
             return;
         }
 
         Long approverId = community.getPresidentId();
-        AssociationMeeting associationMeeting = new AssociationMeeting();
-        associationMeeting.setApproverId(approverId);
-        associationMeeting.setTrackerId(newMeetingInvite.getTrackerId().toString());
-        associationMeeting.setScheduledDate(newMeetingInvite.getDate().value());
-        associationMeeting.setScheduledTime(newMeetingInvite.getTime().value());
-        associationMeeting.setCommunity(community);
+        AssociationMeetingEntity associationMeetingEntity = new AssociationMeetingEntity();
+        associationMeetingEntity.setApproverId(approverId);
+        associationMeetingEntity.setTrackerId(newMeetingInvite.getTrackerId().toString());
+        associationMeetingEntity.setScheduledDate(newMeetingInvite.getDate().value());
+        associationMeetingEntity.setScheduledTime(newMeetingInvite.getTime().value());
+        associationMeetingEntity.setCommunity(community);
 
-        Collection<MeetingParticipant> meetingParticipants = fetchMeetingParticipants(community, associationMeeting);
-        associationMeeting.setParticipants(meetingParticipants);
+        Collection<MeetingParticipantEntity> meetingParticipantEntities = fetchMeetingParticipants(community, associationMeetingEntity);
+        associationMeetingEntity.setParticipants(meetingParticipantEntities);
 
-        community.getMeetings().add(associationMeeting);
+        community.getMeetings().add(associationMeetingEntity);
 
-        entityManager.persist(associationMeeting);
+        entityManager.persist(associationMeetingEntity);
         newMeetingInvite.setApproverId(new NeighbourgId(approverId));
 
-        TypedQuery<MeetingTracker> query = entityManager.createQuery(
+        TypedQuery<MeetingTrackerEntity> query = entityManager.createQuery(
                 "SELECT mt FROM MeetingTracker mt WHERE mt.trackerId = :trackerId",
-                MeetingTracker.class);
+                MeetingTrackerEntity.class);
         query.setParameter("trackerId", newMeetingInvite.getTrackerId().toString());
-        MeetingTracker meetingTracker = query.getResultStream()
+        MeetingTrackerEntity meetingTrackerEntity = query.getResultStream()
                 .findFirst()
                 .orElse(null);
-        meetingTracker.setMeetingId(associationMeeting);
-        entityManager.persist(meetingTracker);
+        meetingTrackerEntity.setMeetingId(associationMeetingEntity);
+        entityManager.persist(meetingTrackerEntity);
     }
 
     @Transactional(readOnly = true)
     @Override
     public MeetingInvite fetchMeetingInvite(CommunityId communityId, TrackerId trackerId) {
-        TypedQuery<AssociationMeeting> query = entityManager.createQuery(
+        TypedQuery<AssociationMeetingEntity> query = entityManager.createQuery(
                 "SELECT am FROM AssociationMeeting am WHERE am.trackerId = :trackerId",
-                AssociationMeeting.class);
+                AssociationMeetingEntity.class);
         query.setParameter("trackerId", trackerId.toString());
 
         return query.getResultStream().findFirst().map(entity ->
@@ -95,9 +95,9 @@ public class JpaMeetingRepository implements MeetingRepository {
     @Transactional(readOnly = true)
     @Override
     public ScheduledAssociationMeeting fetchScheduledAssociationMeeting(CommunityId communityId, TrackerId trackerId) {
-        TypedQuery<AssociationMeeting> query = entityManager.createQuery(
+        TypedQuery<AssociationMeetingEntity> query = entityManager.createQuery(
                 "SELECT am FROM AssociationMeeting am WHERE am.trackerId = :trackerId",
-                AssociationMeeting.class);
+                AssociationMeetingEntity.class);
         query.setParameter("trackerId", trackerId.toString());
 
         ScheduledAssociationMeeting persistedScheduledMeeting = query.getResultStream().findFirst().map(entity ->
@@ -133,28 +133,28 @@ public class JpaMeetingRepository implements MeetingRepository {
     @Override
     public void approveScheduledMeeting(CommunityId communityId, TrackerId trackerId, NeighbourgId approverId) {
         String approvalDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-        TypedQuery<AssociationMeeting> query = entityManager.createQuery(
+        TypedQuery<AssociationMeetingEntity> query = entityManager.createQuery(
                 "SELECT am FROM AssociationMeeting am WHERE am.trackerId = :trackerId",
-                AssociationMeeting.class);
+                AssociationMeetingEntity.class);
         query.setParameter("trackerId", trackerId.toString());
-        AssociationMeeting associationMeeting = query.getResultStream().findFirst()
+        AssociationMeetingEntity associationMeetingEntity = query.getResultStream().findFirst()
                 .map(meeting -> {
                     meeting.setApprovalDateTime(approvalDateTime);
                     return meeting;
                 })
                 .orElse(null);
 
-        if (isNull(associationMeeting)) {
+        if (isNull(associationMeetingEntity)) {
             log.warn("Approval not found for TrackerId={} CommunityId={}", trackerId, communityId);
             String error = String.format("Unable to approve meeting as not found. TrackerId=%d", trackerId);
             throw new MeetingScheduleException(error, MeetingScheduleException.LogLevel.ERROR);
         }
-        entityManager.merge(associationMeeting);
+        entityManager.merge(associationMeetingEntity);
     }
 
-    private Collection<MeetingParticipant> fetchMeetingParticipants(Community community, AssociationMeeting meeting) {
+    private Collection<MeetingParticipantEntity> fetchMeetingParticipants(CommunityEntity community, AssociationMeetingEntity meeting) {
         return community.getNeighbourgs().stream().map(neighbour -> {
-            MeetingParticipant participant = new MeetingParticipant();
+            MeetingParticipantEntity participant = new MeetingParticipantEntity();
             participant.setId(neighbour.getId());
             participant.setParticipantRole(participantRole(neighbour));
             participant.setMeeting(meeting);
@@ -162,7 +162,7 @@ public class JpaMeetingRepository implements MeetingRepository {
         }).collect(Collectors.toList());
     }
 
-    private String participantRole(Neighbour neighbourg) {
+    private String participantRole(NeighbourEntity neighbourg) {
         if (isNull(neighbourg.getPresident()) && isNull(neighbourg.getVicepresident())) {
             return "community_member";
         }

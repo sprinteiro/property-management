@@ -5,9 +5,10 @@ import lombok.Data;
 
 import java.util.Collection;
 
-@Entity
+@Entity(name = "Community")
+@Table(name = "community")
 @Data
-public class Community {
+public class CommunityEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "COMMUNITY_ID")
@@ -17,7 +18,7 @@ public class Community {
     private Long presidentId;
     private Long vicePresidentId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "community")
-    private Collection<AssociationMeeting> meetings;
+    private Collection<AssociationMeetingEntity> meetings;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "thecommunity", fetch = FetchType.EAGER)
-    private Collection<Neighbour> neighbourgs;
+    private Collection<NeighbourEntity> neighbourgs;
 }

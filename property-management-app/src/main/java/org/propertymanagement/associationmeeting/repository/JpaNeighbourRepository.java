@@ -4,7 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.Neighbour;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.NeighbourEntity;
 import org.propertymanagement.domain.*;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +29,9 @@ public class    JpaNeighbourRepository implements NeighbourRepository {
             return Set.of();
         }
 
-        TypedQuery<Neighbour> query = entityManager.createQuery(
+        TypedQuery<NeighbourEntity> query = entityManager.createQuery(
                 "SELECT ne FROM Neighbour ne WHERE ne.id IN ( :neighbourIds )",
-                Neighbour.class);
+                NeighbourEntity.class);
         query.setParameter("neighbourIds", neighbourIds.stream().map(NeighbourgId::value).collect(Collectors.toSet()));
 
         return query.getResultStream().map(entity ->
@@ -44,7 +44,7 @@ public class    JpaNeighbourRepository implements NeighbourRepository {
         ).collect(Collectors.toSet());
     }
 
-    private Participant.ParticipantRole participantRole(Neighbour neighbour) {
+    private Participant.ParticipantRole participantRole(NeighbourEntity neighbour) {
         if (isNull(neighbour.getPresident()) && isNull(neighbour.getVicepresident())) {
             return COMMUNITY_MEMBER;
         }

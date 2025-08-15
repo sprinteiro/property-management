@@ -3,9 +3,10 @@ package org.propertymanagement.associationmeeting.persistence.jpa.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
+@Entity(name = "MeetingTracker")
+@Table(name = "meeting_tracker")
 @Data
-public class MeetingTracker {
+public class MeetingTrackerEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,5 +21,5 @@ public class MeetingTracker {
 
     @OneToOne
     @JoinColumn(name = "MEETING_ID")
-    private AssociationMeeting meetingId;
+    private AssociationMeetingEntity meetingId;
 }

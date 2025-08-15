@@ -5,9 +5,10 @@ import lombok.Data;
 
 import java.util.Objects;
 
-@Entity
+@Entity(name = "MeetingParticipant")
+@Table(name = "meeting_participant")
 @Data
-public class MeetingParticipant {
+public class MeetingParticipantEntity {
     @Id
     @Column(name = "PARTICIPANT_ID")
     private Long id;
@@ -15,12 +16,12 @@ public class MeetingParticipant {
     @Id
     @ManyToOne
     @JoinColumn(name = "MEETING_ID")
-    private AssociationMeeting meeting;
+    private AssociationMeetingEntity meeting;
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        MeetingParticipant that = (MeetingParticipant) o;
+        MeetingParticipantEntity that = (MeetingParticipantEntity) o;
         return Objects.equals(id, that.id);
     }
 

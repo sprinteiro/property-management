@@ -3,11 +3,10 @@ package org.propertymanagement.associationmeeting.repository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.propertymanagement.associationmeeting.config.JpaAssociationMeetingRepositoriesConfig;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.AssociationMeeting;
-import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTracker;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.AssociationMeetingEntity;
+import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTrackerEntity;
 import org.propertymanagement.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 @DataJpaTest(properties = {
-        "debug=false"
+        "debug=false",
+        "spring.jpa.properties.hibernate.format_sql=false",
+        "spring.jpa.properties.hibernate.highlight_sql=false",
+        "spring.jpa.open-in-view=false",
+        "spring.jpa.show-sql=false",
+        "org.springframework.test.context.jdbc=debug",
+        "org.springframework.jdbc.datasource.init=debug"
 })
 public class JpaMeetingRepositoryTest {
     private static final CommunityId COMMUNITY_ID = new CommunityId(1L);
@@ -43,12 +48,12 @@ public class JpaMeetingRepositoryTest {
     @Test
     void registerFetchAndApproveMeetingInvite() {
         // Initialize with trackerId for the meeting invite to be registered
-        MeetingTracker meetingTracker = new MeetingTracker();
-        meetingTracker.setTrackerId(TRACKER_ID.toString());
-        meetingTracker.setCommunityId(COMMUNITY_ID.value());
-        meetingTracker.setDate(MEETING_DATE.value());
-        meetingTracker.setTime(MEETING_TIME.value());
-        jpaEntityManager.persist(meetingTracker);
+        MeetingTrackerEntity meetingTrackerEntity = new MeetingTrackerEntity();
+        meetingTrackerEntity.setTrackerId(TRACKER_ID.toString());
+        meetingTrackerEntity.setCommunityId(COMMUNITY_ID.value());
+        meetingTrackerEntity.setDate(MEETING_DATE.value());
+        meetingTrackerEntity.setTime(MEETING_TIME.value());
+        jpaEntityManager.persist(meetingTrackerEntity);
         jpaEntityManager.flush();
 
         // Register a new meeting invite
@@ -73,15 +78,14 @@ public class JpaMeetingRepositoryTest {
                 .returns(4, meeting -> meeting.participants().size());
 
         // Approve the scheduled meeting
-        AssociationMeeting associationMeeting = jpaEntityManager.find(AssociationMeeting.class, 1L);
-        assertNull(associationMeeting.getApprovalDateTime());
+        AssociationMeetingEntity associationMeetingEntity = jpaEntityManager.find(AssociationMeetingEntity.class, 1L);
+        assertNull(associationMeetingEntity.getApprovalDateTime());
         jpaRepository.approveScheduledMeeting(COMMUNITY_ID, TRACKER_ID, meetingInvite.getApproverId());
-        associationMeeting = jpaEntityManager.find(AssociationMeeting.class, 1L);
-        assertNotNull(associationMeeting.getApprovalDateTime());
+        associationMeetingEntity = jpaEntityManager.find(AssociationMeetingEntity.class, 1L);
+        assertNotNull(associationMeetingEntity.getApprovalDateTime());
     }
 
     @Configuration
-    @EnableAutoConfiguration
     @Import({ JpaAssociationMeetingRepositoriesConfig.class })
     static class JpaConfiguration {
     }

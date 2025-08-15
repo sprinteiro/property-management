@@ -5,9 +5,10 @@ import lombok.Data;
 
 import java.util.Collection;
 
-@Entity
+@Entity(name = "AssociationMeeting")
+@Table(name = "association_meeting")
 @Data
-public class AssociationMeeting {
+public class AssociationMeetingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MEETING_ID")
@@ -20,7 +21,7 @@ public class AssociationMeeting {
     private String trackerId;
     @ManyToOne
     @JoinColumn(name="COMMUNITY_ID", nullable = false)
-    private Community community;
+    private CommunityEntity community;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "meeting")
-    private Collection<MeetingParticipant> participants;
+    private Collection<MeetingParticipantEntity> participants;
 }

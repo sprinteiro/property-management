@@ -3,9 +3,10 @@ package org.propertymanagement.associationmeeting.persistence.jpa.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
+@Entity(name = "Neighbour")
+@Table(name = "neighbour")
 @Data
-public class Neighbour {
+public class NeighbourEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "NEIGHBOURG_ID")
@@ -17,5 +18,5 @@ public class Neighbour {
     private Boolean vicepresident;
     @ManyToOne
     @JoinColumn(name = "COMMUNITY_ID", nullable = false)
-    private Community thecommunity;
+    private CommunityEntity thecommunity;
 }

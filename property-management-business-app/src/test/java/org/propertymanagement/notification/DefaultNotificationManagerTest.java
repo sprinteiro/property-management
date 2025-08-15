@@ -68,7 +68,7 @@ public class DefaultNotificationManagerTest {
 
     private NotificationDelivery<Meeting> newNotification(NotificationRequest.NotificationChannel channel) {
         var phoneNumber = new PhoneNumber("+1111111111");
-        Recipient recipient = new Recipient(PRESIDENT_ID, channel, phoneNumber, new Name("test name"));
+        Recipient recipient = new Recipient(PRESIDENT_ID, channel, phoneNumber, new Name("test field"));
         var details = new Meeting(MEETING_DATE, MEETING_TIME, new MeetingSubject("Meeting subject", "Description"), CORRELATION_ID.getBytes(UTF_8));
         return new NotificationDelivery<>(
                 NotificationDelivery.NotificationType.MEETING,
