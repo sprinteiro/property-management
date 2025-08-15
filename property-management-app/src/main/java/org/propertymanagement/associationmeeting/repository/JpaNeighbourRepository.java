@@ -18,7 +18,7 @@ import static org.propertymanagement.domain.Participant.ParticipantRole.*;
 
 @Slf4j
 @RequiredArgsConstructor
-public class    JpaNeighbourRepository implements NeighbourRepository {
+public class JpaNeighbourRepository implements NeighbourRepository {
     private final EntityManager entityManager;
 
 

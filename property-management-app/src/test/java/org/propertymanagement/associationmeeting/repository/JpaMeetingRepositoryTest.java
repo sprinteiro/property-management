@@ -7,6 +7,7 @@ import org.propertymanagement.associationmeeting.persistence.jpa.entities.Associ
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTrackerEntity;
 import org.propertymanagement.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Configuration;
@@ -86,6 +87,7 @@ public class JpaMeetingRepositoryTest {
     }
 
     @Configuration
+    @EnableAutoConfiguration
     @Import({ JpaAssociationMeetingRepositoriesConfig.class })
     static class JpaConfiguration {
     }
