@@ -35,7 +35,7 @@ public class JpaSearchRepositoryTest {
 
         assertThat(result)
                 .isNotNull()
-                .hasSize(3);
+                .hasSize(4);
     }
 
     @Configuration

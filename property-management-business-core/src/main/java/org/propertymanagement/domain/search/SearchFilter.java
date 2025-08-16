@@ -1,9 +1,8 @@
 package org.propertymanagement.domain.search;
 
-public record SearchFilter(FieldName field, FieldValue value, FilterOperator operator) {
+public record SearchFilter(FieldName field, FieldValue<String> value) {
 
-    public enum FilterOperator {
-                AND,
-                OR,
+    public static SearchFilter of(String fieldName, String fieldValue) {
+        return new SearchFilter(new FieldName(fieldName), new FieldValue<>(fieldValue));
     }
 }

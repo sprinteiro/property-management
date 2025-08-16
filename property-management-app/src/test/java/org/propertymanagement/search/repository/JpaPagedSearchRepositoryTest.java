@@ -134,6 +134,28 @@ public class JpaPagedSearchRepositoryTest {
         });
     }
 
+
+//    @Test
+//    void fetchPagedCommunitiesFilteredByAddressOrderByNameDesc() {
+//        var expectedAddress = "112 Delicias Avenue";
+//        List<ExpectedTriple> expected = List.of(
+//                ExpectedTriple.of("222222A", expectedAddress, 0),
+//                ExpectedTriple.of("111111A", expectedAddress, 1)
+//
+//        );
+//
+//        expected.forEach((triple) -> {
+//            SearchCriteria<CommunityInfo> criteria = searchCriteria(
+//                    List.of(OrderField.of("name", OrderedBy.SearchOrder.DESC)),
+//                    List.of(SearchFilter.of("address", expectedAddress)),
+//                    1,
+//                    triple.pageNumber
+//            );
+//            PagedSearch<CommunityInfo> result = jpaRepository.fetchAllCommunitiesInPages(criteria);
+//            assertPageResult(result, triple.pageNumber, result.totalPages(), triple.cif, triple.address, result.totalElements());
+//        });
+//    }
+
     @Configuration
     @EnableAutoConfiguration
     @Import({JpaSearchRepositoriesConfig.class})
@@ -151,7 +173,7 @@ public class JpaPagedSearchRepositoryTest {
 
     private SearchCriteria<CommunityInfo> searchCriteria(
             List<OrderField> orderFields,
-            List<FilterField> fileterFields,
+            List<SearchFilter> filterFields,
             int pageSize,
             int pageNumber
     ) {
@@ -161,7 +183,7 @@ public class JpaPagedSearchRepositoryTest {
 
         return new SearchCriteria<>(
                 OrderedBy.of(orderFields),
-                new FilteredBy(List.of()),
+                FilteredBy.of(filterFields),
                 CommunityInfo.class,
                 SearchCriteriaPage.of(pageSize, pageNumber)
         );

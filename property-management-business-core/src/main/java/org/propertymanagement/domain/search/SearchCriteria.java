@@ -19,7 +19,7 @@ public record SearchCriteria<T>(
     public SearchCriteria(Class<T> clazz) {
         this(
                 null,
-                new FilteredBy(),
+                null,
                 clazz,
                 // TODO: JJ - Make it configurable with default values
                 new SearchCriteriaPage(1, 0)
@@ -29,7 +29,7 @@ public record SearchCriteria<T>(
     public SearchCriteria(Class<T> clazz, Integer pageNumber) {
         this(
                 null,
-                new FilteredBy(),
+                null,
                 clazz,
                 new SearchCriteriaPage(1, Objects.requireNonNull(pageNumber, "pageNumber must not be null"))
         );
