@@ -2,14 +2,19 @@ package org.propertymanagement.domain.search;
 
 import java.util.List;
 
-public record OrderedBy(SearchOrder order, List<FieldName> fields) {
+public record OrderedBy(List<OrderField> fields) {
+    public static OrderedBy of(List<OrderField> fields) {
+        return new OrderedBy(fields);
+    }
 
-    public OrderedBy(SearchOrder order, List<FieldName> fields) {
-        if (order != SearchOrder.NONE && fields.isEmpty()) {
-            throw new IllegalArgumentException("Fields must be provided when order is not NONE");
+    public record OrderField(String name, OrderedBy.SearchOrder orderBy) {
+        public static OrderField of(String name) {
+            return new OrderField(name, OrderedBy.SearchOrder.NONE);
         }
-        this.order = order;
-        this.fields = fields;
+
+        public static OrderField of(String name, OrderedBy.SearchOrder orderBy) {
+            return new OrderField(name, orderBy);
+        }
     }
 
     public enum SearchOrder {
@@ -17,11 +22,4 @@ public record OrderedBy(SearchOrder order, List<FieldName> fields) {
         DESC,
         NONE,
     }
-
-    public boolean none() {
-        return order == SearchOrder.NONE;
-    }
 }
-
-
-

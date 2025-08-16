@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -23,15 +24,13 @@ public class JpaPagedSearchRepository<D> implements PagedSearchRepository<D> {
     @Override
     public PagedSearch<CommunityInfo> fetchAllCommunitiesInPages(SearchCriteria<D> searchCriteria) {
         if (CommunityInfo.class.getTypeName().equals(searchCriteria.clazz().getTypeName())) {
-            Optional<Sort> sort = sortFrom(searchCriteria);
-
             int pageNumber = Optional.ofNullable(searchCriteria.page().pageNumber()).orElse(0);
             int pageSize = searchCriteria.page().pageSize();
+            Optional<Sort> sort = sortFrom(searchCriteria);
 
             PageRequest pageRequest = sort
                     .map(it -> PageRequest.of(pageNumber, pageSize, it))
                     .orElse(PageRequest.of(pageNumber, pageSize));
-
 
             Page<CommunityEntity> page = communityRepository.findAll(pageRequest);
             List<CommunityInfo> items = jpaCommunityEntityMapper.mapToDomain(page.getContent());
@@ -42,18 +41,17 @@ public class JpaPagedSearchRepository<D> implements PagedSearchRepository<D> {
     }
 
     private Optional<Sort> sortFrom(SearchCriteria<D> searchCriteria) {
-        if (!searchCriteria.orderBy().fields().isEmpty()) {
-            String[] fields = searchCriteria
-                    .orderBy().fields().stream()
-                    .map(domainField -> jpaCommunityEntityMapper.toEntityField(domainField.value()))
-                    .toArray(String[]::new);
-            return Optional.of(
-                    Sort.by(
-                            searchCriteria.orderBy().order() == OrderedBy.SearchOrder.DESC ? Sort.Direction.DESC : Sort.Direction.ASC,
-                            fields
-                    ));
+        if (Objects.isNull(searchCriteria.orderBy()) || searchCriteria.orderBy().fields().isEmpty()) {
+            return Optional.empty();
         }
-
-        return Optional.empty();
+        List<Sort.Order> orders = searchCriteria
+                    .orderBy().fields().stream()
+                    .map(domainField -> {
+                        String entityField = jpaCommunityEntityMapper.toEntityField(domainField.name());
+                        Sort.Direction direction = domainField.orderBy() == OrderedBy.SearchOrder.DESC ? Sort.Direction.DESC : Sort.Direction.ASC;
+                        return new Sort.Order(direction, entityField);
+                    })
+                    .toList();
+        return Optional.of(Sort.by(orders));
     }
 }
