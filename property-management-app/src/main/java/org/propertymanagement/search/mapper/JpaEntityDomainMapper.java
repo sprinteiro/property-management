@@ -10,4 +10,5 @@ public interface JpaEntityDomainMapper<E, D> {
     }
 
     D toDomain(E entity);
+    String toEntityField(String domainField);
 }

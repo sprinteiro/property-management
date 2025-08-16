@@ -1,7 +1,6 @@
 package org.propertymanagement.search.repository;
 
 import org.junit.jupiter.api.Test;
-import org.propertymanagement.associationmeeting.config.JpaAssociationMeetingRepositoriesConfig;
 import org.propertymanagement.domain.CommunityInfo;
 import org.propertymanagement.domain.search.SearchCriteria;
 import org.propertymanagement.search.JpaSearchRepositoriesConfig;
@@ -28,19 +27,15 @@ public class JpaSearchRepositoryTest {
     @Autowired
     private SearchRepository<CommunityInfo> jpaRepository;
 
-    @Test
-    void context() {
-        System.out.printf("the context");
-    }
 
     @Test
     void fetchAllCommunities() {
         SearchCriteria<CommunityInfo> criteria = new SearchCriteria<>(CommunityInfo.class);
         Collection<CommunityInfo> result = jpaRepository.fetchAllCommunities(criteria);
-        // TODO: JJ - Use test entity manager to populate the expected data and assert
+
         assertThat(result)
                 .isNotNull()
-                .hasSize(2);
+                .hasSize(3);
     }
 
     @Configuration

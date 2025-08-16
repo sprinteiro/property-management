@@ -1,9 +1,7 @@
 package org.propertymanagement.domain.search;
 
-
-import org.propertymanagement.domain.CommunityInfo;
-
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Search criteria to allow search data by a type, allowing filtering by fields and ordering by fields.
@@ -19,7 +17,22 @@ public record SearchCriteria<T>(
         SearchCriteriaPage page
 ) {
     public SearchCriteria(Class<T> clazz) {
-        this(new OrderedBy(OrderedBy.SearchOrder.NONE, List.of()), new FilteredBy(), clazz, null);
+        this(
+                new OrderedBy(OrderedBy.SearchOrder.NONE, List.of()),
+                new FilteredBy(),
+                clazz,
+                // TODO: JJ - Make it configurable with default values
+                new SearchCriteriaPage(1, 0)
+        );
+    }
+
+    public SearchCriteria(Class<T> clazz, Integer pageNumber) {
+        this(
+                new OrderedBy(OrderedBy.SearchOrder.NONE, List.of()),
+                new FilteredBy(),
+                clazz,
+                new SearchCriteriaPage(1, Objects.requireNonNull(pageNumber, "pageNumber must not be null"))
+        );
     }
 
     public List<SearchFilter> filters() {

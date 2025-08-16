@@ -4,10 +4,7 @@ import org.propertymanagement.associationmeeting.persistence.jpa.entities.Commun
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.NoOpJpaAssociationMeetingEntity;
 import org.propertymanagement.domain.CommunityInfo;
 import org.propertymanagement.search.mapper.JpaCommunityEntityMapper;
-import org.propertymanagement.search.repository.DataCommunityRepository;
-import org.propertymanagement.search.repository.DataNoOpSearchRepository;
-import org.propertymanagement.search.repository.JpaSearchRepository;
-import org.propertymanagement.search.repository.SearchRepository;
+import org.propertymanagement.search.repository.*;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +20,13 @@ public class JpaSearchRepositoriesConfig {
             DataCommunityRepository communityRepository,
             JpaCommunityEntityMapper jpaCommunityEntityMapper) {
         return new JpaSearchRepository<>(communityRepository, jpaCommunityEntityMapper);
+    }
+
+    @Bean
+    public PagedSearchRepository<CommunityInfo> jpaPagedSearchRepository(
+            DataCommunityRepository communityRepository,
+            JpaCommunityEntityMapper jpaCommunityEntityMapper) {
+        return new JpaPagedSearchRepository<>(communityRepository, jpaCommunityEntityMapper);
     }
 
     @Bean
