@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @EnableJpaRepositories(basePackageClasses = DataNoOpSearchRepository.class)
-@EntityScan(basePackageClasses = { NoOpJpaAssociationMeetingEntity.class, CommunityEntity.class })
+@EntityScan(basePackageClasses = { NoOpJpaAssociationMeetingEntity.class })
 public class JpaSearchRepositoriesConfig {
 
     @Bean
