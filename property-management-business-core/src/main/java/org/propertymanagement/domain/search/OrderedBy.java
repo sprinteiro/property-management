@@ -9,7 +9,7 @@ public record OrderedBy(List<OrderField> fields) {
 
     public record OrderField(String name, OrderedBy.SearchOrder orderBy) {
         public static OrderField of(String name) {
-            return new OrderField(name, OrderedBy.SearchOrder.NONE);
+            return of(name, OrderedBy.SearchOrder.NONE);
         }
 
         public static OrderField of(String name, OrderedBy.SearchOrder orderBy) {

@@ -21,7 +21,6 @@ public record SearchCriteria<T>(
                 null,
                 null,
                 clazz,
-                // TODO: JJ - Make it configurable with default values
                 new SearchCriteriaPage(1, 0)
         );
     }
@@ -36,6 +35,9 @@ public record SearchCriteria<T>(
     }
 
     public List<SearchFilter> filters() {
+        if (Objects.isNull(filteredBy)) {
+            return List.of();
+        }
         return filteredBy.fields();
     }
 }

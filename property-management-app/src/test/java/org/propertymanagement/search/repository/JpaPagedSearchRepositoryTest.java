@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
                 "search.page.size=1"
         }
 )
-@Sql(scripts = { "classpath:/schema.sql", "classpath:/data.sql" })
+@Sql(scripts = {"classpath:/schema.sql", "classpath:/data.sql"})
 public class JpaPagedSearchRepositoryTest {
     @Autowired
     private PagedSearchRepository<CommunityInfo> jpaRepository;
@@ -134,27 +134,63 @@ public class JpaPagedSearchRepositoryTest {
         });
     }
 
+    @Test
+    void fetchPagedCommunitiesFilteredByExactOrLikeAddressOrderByNameDesc() {
+        var expectedAddress = "112 Delicias Avenue";
+        List<ExpectedTriple> expected = List.of(
+                ExpectedTriple.of("222222A", expectedAddress, 0),
+                ExpectedTriple.of("111111A", expectedAddress, 1)
+        );
 
-//    @Test
-//    void fetchPagedCommunitiesFilteredByAddressOrderByNameDesc() {
-//        var expectedAddress = "112 Delicias Avenue";
-//        List<ExpectedTriple> expected = List.of(
-//                ExpectedTriple.of("222222A", expectedAddress, 0),
-//                ExpectedTriple.of("111111A", expectedAddress, 1)
-//
-//        );
-//
-//        expected.forEach((triple) -> {
-//            SearchCriteria<CommunityInfo> criteria = searchCriteria(
-//                    List.of(OrderField.of("name", OrderedBy.SearchOrder.DESC)),
-//                    List.of(SearchFilter.of("address", expectedAddress)),
-//                    1,
-//                    triple.pageNumber
-//            );
-//            PagedSearch<CommunityInfo> result = jpaRepository.fetchAllCommunitiesInPages(criteria);
-//            assertPageResult(result, triple.pageNumber, result.totalPages(), triple.cif, triple.address, result.totalElements());
-//        });
-//    }
+        // Exact match by address
+        expected.forEach((triple) -> {
+            SearchCriteria<CommunityInfo> criteria = searchCriteria(
+                    List.of(OrderField.of("name", OrderedBy.SearchOrder.DESC)),
+                    List.of(SearchFilter.of("address", expectedAddress, SearchFilter.Hint.EXACT_MATCH)),
+                    1,
+                    triple.pageNumber
+            );
+            PagedSearch<CommunityInfo> result = jpaRepository.fetchAllCommunitiesInPages(criteria);
+            assertPageResult(result, triple.pageNumber, result.totalPages(), triple.cif, triple.address, result.totalElements());
+        });
+
+        // Like-matching by address, pageSize=3 and first page to fetch all matches in the first page
+        var criteria = searchCriteria(
+                List.of(),
+                List.of(SearchFilter.of("address", "1", SearchFilter.Hint.LIKE_MATCH)),
+                3,
+                0
+        );
+        PagedSearch<CommunityInfo> result = jpaRepository.fetchAllCommunitiesInPages(criteria);
+        assertThat(result.totalElements()).isEqualTo(3);
+        assertThat(result.items().stream().filter(it -> it.address().name().equals("112 Delicias Avenue" ))
+                .count()).isEqualTo(2);
+        assertThat(result.items().stream().filter(it -> it.address().name().equals("1 Canarias Street" ))
+                .count()).isEqualTo(1);
+
+        // Exact match (default) by name, pageSize=1 as only one expected item
+        String expectedCif = "222222A";
+        criteria = searchCriteria(
+                List.of(),
+                List.of(SearchFilter.of("name", expectedCif)),
+                1,
+                0
+        );
+        result = jpaRepository.fetchAllCommunitiesInPages(criteria);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.items().stream().findFirst().get().name()).isEqualTo(expectedCif);
+
+        // Exact match (default) by address and name, pageSize=1 as only one expected item
+        criteria = searchCriteria(
+                List.of(),
+                List.of(SearchFilter.of("address", expectedAddress), SearchFilter.of("name", expectedCif)),
+                1,
+                0
+        );
+        result = jpaRepository.fetchAllCommunitiesInPages(criteria);
+        assertThat(result.totalElements()).isEqualTo(1);
+        assertThat(result.items().stream().findFirst().get().name()).isEqualTo(expectedCif);
+    }
 
     @Configuration
     @EnableAutoConfiguration
@@ -177,7 +213,7 @@ public class JpaPagedSearchRepositoryTest {
             int pageSize,
             int pageNumber
     ) {
-        if (Objects.isNull(orderFields) || orderFields.isEmpty()) {
+        if ((Objects.isNull(orderFields) || orderFields.isEmpty()) && (Objects.isNull(filterFields) || (filterFields.isEmpty()))) {
             return new SearchCriteria<>(CommunityInfo.class, pageNumber);
         }
 
