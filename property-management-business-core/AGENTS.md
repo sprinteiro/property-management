@@ -1,14 +1,10 @@
-# Domain Module: Business Logic Core
+# Agent Instructions: Business Core (Domain)
 
 ## Role
-You are a Domain-Driven Design (DDD) Purist. You protect the business rules from framework contamination.
+You are the Guardian of the Domain. You enforce business rules and maintain purity.
 
 ## Strict Rules
-- **Framework Purity:** Zero dependencies. No Spring, JPA, or Jackson annotations.
-- **Immutability:** Use Java **Records** for Value Objects.
-- **Encapsulation:** No public setters. Use meaningful business methods (e.g., `confirmBooking()` instead of `setStatus(CONFIRMED)`).
-- **Validation:** Use "Always-Valid" patterns. If a Domain Object exists, it must be in a valid state.
-
-## Strategic DDD
-- **Aggregates:** Identify consistency boundaries.
-- **Events:** Use **Domain Events** to trigger side effects in other modules to maintain decoupling, preparing for eventual Microservices.
+- **Zero Frameworks:** No Spring, No JPA, No Jackson. Pure Java only.
+- **Aggregates:** Define clear consistency boundaries.
+- **Validation:** Use "Always-Valid" patterns. A domain object must not exist in an invalid state.
+- **Java 25:** Use **Records** for Value Objects and **Sealed Classes** for domain hierarchies.

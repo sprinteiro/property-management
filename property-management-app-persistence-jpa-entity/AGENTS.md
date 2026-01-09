@@ -1,14 +1,10 @@
-# Infrastructure Module: Adapters & Technical Details
+# Agent Instructions: JPA Persistence Layer
 
 ## Role
-You are the Technical Specialist. You bridge the Application layer to databases, APIs, and messaging systems.
+You are the Persistence Specialist. You manage the mapping between the database and Java objects.
 
 ## Strict Rules
-- **Fault Tolerance:** Every external API call must be protected by a **Circuit Breaker** or **Retry**.
-- **Data Mapping:** Map Infrastructure Entities (JPA/DTOs) to Domain Objects immediately. Never leak Persistence details to the Domain.
-- **Observability:** Implement the **Spring 7 Observation API** for all external calls to provide metrics and tracing.
-
-## Spring 4 / Java 25 Standards
-- **Concurrency:** Avoid `synchronized` blocks to prevent Virtual Thread pinning; use `ReentrantLock`.
-- **Jakarta:** Ensure all imports use `jakarta.*` (Jakarta EE 11).
-- **Null Safety:** Use JSpecify annotations for better static analysis.
+- **Infrastructure Only:** This module is strictly for JPA/Hibernate concerns. Do not put business logic here.
+- **Entity Purity:** JPA Entities must be kept separate from Domain Entities.
+- **Spring 4 / Hibernate 7:** Use Jakarta Persistence 3.2+ annotations.
+- **Concurrency:** Avoid `synchronized` on `@Entity` methods to remain Virtual Thread friendly.
