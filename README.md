@@ -261,3 +261,7 @@ This project follows **Clean Architecture** principles, strictly enforced throug
 3. **Infrastructure:** Persistence (JPA), Messaging (Avro), and external API adapters.
 4. **App/Rest:** Composition root and API entry points.
 
+# Developer Tools
+## Architecture Audit
+- Run `./sanity_check_report.sh` to generate a report of architectural violations that need to be addressed before the Java 25 migration
+
