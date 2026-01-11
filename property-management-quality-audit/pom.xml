@@ -6,6 +6,7 @@
         <artifactId>property-management</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
+    <!-- Architecture tests to guarantee the Domain remains the protected -->
     <artifactId>property-management-quality-audit</artifactId>
     <packaging>jar</packaging>
     <dependencies>
@@ -17,6 +18,18 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>property-management-business-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>property-management-business-app</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>property-management-app-persistence-jpa-entity</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
