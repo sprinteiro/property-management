@@ -247,3 +247,17 @@ This application has been tested with the following tech stack:
 ## Elastic search
 https://github.com/FusionAuth/fusionauth-containers/issues/20
 
+# Architecture & AI Governance
+
+This project follows **Clean Architecture** principles, strictly enforced through automated boundaries and AI Agent protocols.
+
+## Automated Enforcement
+- **ArchUnit:** We use a dedicated module `property-management-quality-audit` to programmatically prevent architectural erosion (e.g., Infrastructure leaking into Domain).
+- **AI-Native Development:** This repository includes `AGENTS.md` files at the root and within modules. These files provide contextual "laws" for AI coding assistants (like Cursor, Windsurf, or Copilot) to ensure they follow Java 25 and Spring Boot 4 standards.
+
+## Layered Boundaries
+1. **Business Core:** Pure Java domain logic (Zero dependencies).
+2. **Business App:** Use cases and orchestration.
+3. **Infrastructure:** Persistence (JPA), Messaging (Avro), and external API adapters.
+4. **App/Rest:** Composition root and API entry points.
+
