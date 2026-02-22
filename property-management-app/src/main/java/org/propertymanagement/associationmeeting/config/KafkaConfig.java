@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class KafkaConfig {
 
-    @Value("${kafka.theadpool.size:5}")
+    @Value("${kafka.threadpool.size:5}")
     private int poolSize;
 
     @Bean
