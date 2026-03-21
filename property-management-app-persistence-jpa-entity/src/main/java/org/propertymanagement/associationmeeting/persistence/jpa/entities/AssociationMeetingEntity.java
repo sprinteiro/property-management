@@ -24,4 +24,5 @@ public class AssociationMeetingEntity {
     private CommunityEntity community;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "meeting")
     private Collection<MeetingParticipantEntity> participants;
+    private String correlationId;
 }

@@ -54,9 +54,8 @@ public class ExceptionHandlerControllerTest {
 
     @Test
     void newMeetingBadRequestAsMeetingScheduleException() throws Exception {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"));
-        meetingInvite.setCorrelationId("correlationId".getBytes(UTF_8));
-        meetingInvite.setTrackerId(TRACKER_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
+                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
         MeetingRequestDto meetingRequestDto = newMeetingRequestDto(meetingInvite);
 
         String apiErrorMessage = API_ERROR_MESSAGE;
@@ -80,9 +79,8 @@ public class ExceptionHandlerControllerTest {
 
     @Test
     void newMeetingBadRequestAsInvalidMeetingInviteException() throws Exception {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"));
-        meetingInvite.setCorrelationId("correlationId".getBytes(UTF_8));
-        meetingInvite.setTrackerId(TRACKER_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
+                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
         MeetingRequestDto meetingRequestDto = newMeetingRequestDto(meetingInvite);
 
         given(meetingScheduler.newMeeting(any(MeetingInvite.class)))
@@ -105,9 +103,8 @@ public class ExceptionHandlerControllerTest {
 
     @Test
     void newMeetingBadRequestAsRuntimeException() throws Exception {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"));
-        meetingInvite.setCorrelationId("correlationId".getBytes(UTF_8));
-        meetingInvite.setTrackerId(TRACKER_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
+                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
         MeetingRequestDto meetingRequestDto = newMeetingRequestDto(meetingInvite);
 
         given(meetingScheduler.newMeeting(any(MeetingInvite.class)))
@@ -130,8 +127,8 @@ public class ExceptionHandlerControllerTest {
 
     private MeetingRequestDto newMeetingRequestDto(MeetingInvite meetingInvite) {
         var meetingRequestDto = new MeetingRequestDto();
-        meetingRequestDto.setTime(meetingInvite.getTime().value());
-        meetingRequestDto.setDate(meetingInvite.getDate().value());
+        meetingRequestDto.setTime(meetingInvite.time().value());
+        meetingRequestDto.setDate(meetingInvite.date().value());
         return meetingRequestDto;
     }
 

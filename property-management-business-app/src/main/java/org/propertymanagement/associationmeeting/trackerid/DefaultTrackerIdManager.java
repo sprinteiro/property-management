@@ -28,10 +28,10 @@ public class DefaultTrackerIdManager implements TrackerIdManager {
     public boolean registerId(MeetingInvite meetingInvite) {
         try {
             repository.register(meetingInvite);
-            log.info("Successfully registered TrackerId={} CorrelationId={}", meetingInvite.getTrackerId().toString(), correlationIdAsString(meetingInvite.getCorrelationId()));
+            log.info("Successfully registered TrackerId={} CorrelationId={}", meetingInvite.trackerId().toString(), correlationIdAsString(meetingInvite.correlationId()));
             return true;
         } catch (Exception e) {
-            log.error("Error in registering trackerId={} Reason={} CorrelationId={}", meetingInvite.getTrackerId().toString(), e.getMessage(), correlationIdAsString(meetingInvite.getCorrelationId()));
+            log.error("Error in registering trackerId={} Reason={} CorrelationId={}", meetingInvite.trackerId().toString(), e.getMessage(), correlationIdAsString(meetingInvite.correlationId()));
             return false;
         }
     }

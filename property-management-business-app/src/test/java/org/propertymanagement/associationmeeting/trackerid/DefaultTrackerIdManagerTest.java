@@ -23,9 +23,7 @@ public class DefaultTrackerIdManagerTest {
 
     @Test
     void registerTrackerId() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME);
-        meetingInvite.setTrackerId(TRACKER_ID);
-        meetingInvite.setCorrelationId("correlationId".getBytes(UTF_8));
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, null, null, "correlationId".getBytes(UTF_8));
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
 
         TrackerIdManager trackerIdManager = new DefaultTrackerIdManager(mockTrackerIdRepository);
@@ -36,9 +34,7 @@ public class DefaultTrackerIdManagerTest {
 
     @Test
     void unableRegisterTrackerId() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME);
-        meetingInvite.setTrackerId(TRACKER_ID);
-        meetingInvite.setCorrelationId("correlationId".getBytes(UTF_8));
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, null, null, "correlationId".getBytes(UTF_8));
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
         doThrow(RuntimeException.class).when(mockTrackerIdRepository).register(meetingInvite);
 
@@ -50,21 +46,21 @@ public class DefaultTrackerIdManagerTest {
 
     @Test
     void fetchMeetingInvite() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID);
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, null, null, null, null, null, null);
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
         when(mockTrackerIdRepository.fetchMeetingInvite(TRACKER_ID)).thenReturn(meetingInvite);
 
         TrackerIdManager trackerIdManager = new DefaultTrackerIdManager(mockTrackerIdRepository);
 
         MeetingInvite result = trackerIdManager.fetchMeetingInvite(TRACKER_ID);
-        assertEquals(COMMUNITY_ID, result.getCommunityId());
+        assertEquals(COMMUNITY_ID, result.communityId());
 
         verify(mockTrackerIdRepository).fetchMeetingInvite(TRACKER_ID);
     }
 
     @Test
     void generateTrackerId() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID);
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, null, null, null, null, null, null);
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
         when(mockTrackerIdRepository.fetchMeetingInvite(TRACKER_ID)).thenReturn(meetingInvite);
 

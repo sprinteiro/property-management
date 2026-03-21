@@ -18,11 +18,10 @@ public class JpaTrackerIdRepository implements TrackerIdRepository {
     @Override
     public void register(MeetingInvite meetingInvite) {
         MeetingTrackerEntity entity = new MeetingTrackerEntity();
-        entity.setTrackerId(meetingInvite.toString());
-        entity.setTrackerId(meetingInvite.getTrackerId().toString());
-        entity.setCommunityId(meetingInvite.getCommunityId().value());
-        entity.setDate(meetingInvite.getDate().value());
-        entity.setTime(meetingInvite.getTime().value());
+        entity.setTrackerId(meetingInvite.trackerId().toString());
+        entity.setCommunityId(meetingInvite.communityId().value());
+        entity.setDate(meetingInvite.date().value());
+        entity.setTime(meetingInvite.time().value());
 
         entityManager.persist(entity);
     }
@@ -36,13 +35,15 @@ public class JpaTrackerIdRepository implements TrackerIdRepository {
 
         return query.getResultStream().findFirst().map(entity ->
         {
-            MeetingInvite invite = new MeetingInvite(
+            return new MeetingInvite(
                     new CommunityId(entity.getCommunityId()),
                     new MeetingDate(entity.getDate()),
-                    new MeetingTime(entity.getTime())
+                    new MeetingTime(entity.getTime()),
+                    trackerId,
+                    null,
+                    null,
+                    null
             );
-            invite.setTrackerId(trackerId);
-            return invite;
         }).orElse(null);
     }
 }

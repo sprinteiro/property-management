@@ -19,6 +19,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.util.StringUtils;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -49,18 +50,18 @@ public class KafkaMeetingNotifier implements MeetingNotification {
 
     @Override
     public void notifyForCreation(MeetingInvite invite) {
-        correlationIdLog.execWithProvidedCorrelationId(correlationIdAsString(invite.getCorrelationId()), () -> {
+        correlationIdLog.execWithProvidedCorrelationId(correlationIdAsString(invite.correlationId()), () -> {
                     Map<String, String> copyOfContextMap = correlationIdLog.getCopyOfContextMap();
-                    ProducerRecord<String, GenericRecord> record = newProducerRecordWithCorrelationIdHeader(TOPIC_MEETING_REGISTRATION_REQUEST, toAvroMeetingInvite(invite), invite.getCorrelationId());
+                    ProducerRecord<String, GenericRecord> record = newProducerRecordWithCorrelationIdHeader(TOPIC_MEETING_REGISTRATION_REQUEST, toAvroMeetingInvite(invite), invite.correlationId());
                     CompletableFuture.supplyAsync(() -> {
                                 correlationIdLog.setContextMap(copyOfContextMap);
-                                log.info("Publishing invite for creation. CorrelationId={} Topic={} Message={}", correlationIdAsString(invite.getCorrelationId()), record.topic(), record.value());
+                                log.info("Publishing invite for creation. CorrelationId={} Topic={} Message={}", correlationIdAsString(invite.correlationId()), record.topic(), record.value());
                                 return kafkaTemplate.send(record);
                             }, kafkaExecutor)
                             .handle((result, throwable) -> {
                                 if (ExceptionUtils.getRootCause(throwable) instanceof TimeoutException) {
                                     RetryDetails retryResult = retrySendToKafka(record);
-                                    log.info("Retry result - {} CorrelationId={}", retryResult, correlationIdAsString(invite.getCorrelationId()));
+                                    log.info("Retry result - {} CorrelationId={}", retryResult, correlationIdAsString(invite.correlationId()));
                                 } else if (nonNull(result)) {
                                     log.info("Produced event to topic {} CorrelationId={} Message={}", record.topic(), correlationIdAsString(record), record.value());
                                 }
@@ -72,18 +73,18 @@ public class KafkaMeetingNotifier implements MeetingNotification {
 
     @Override
     public void notifyForApproval(MeetingInvite invite) {
-        correlationIdLog.execWithProvidedCorrelationId(correlationIdAsString(invite.getCorrelationId()), () -> {
+        correlationIdLog.execWithProvidedCorrelationId(correlationIdAsString(invite.correlationId()), () -> {
                     Map<String, String> copyOfContextMap = correlationIdLog.getCopyOfContextMap();
-                    ProducerRecord<String, GenericRecord> record = newProducerRecordWithCorrelationIdHeader(TOPIC_MEETING_APPROVAL_REQUEST, toAvroMeetingInvite(invite), invite.getCorrelationId());
+                    ProducerRecord<String, GenericRecord> record = newProducerRecordWithCorrelationIdHeader(TOPIC_MEETING_APPROVAL_REQUEST, toAvroMeetingInvite(invite), invite.correlationId());
                     CompletableFuture.supplyAsync(() -> {
                                 correlationIdLog.setContextMap(copyOfContextMap);
-                                log.info("Publishing invite for approval. CorrelationId={} Topic={} Message={}", correlationIdAsString(invite.getCorrelationId()), record.topic(), record.value());
+                                log.info("Publishing invite for approval. CorrelationId={} Topic={} Message={}", correlationIdAsString(invite.correlationId()), record.topic(), record.value());
                                 return kafkaTemplate.send(record);
                             }, kafkaExecutor)
                             .handle((result, throwable) -> {
                                 if (ExceptionUtils.getRootCause(throwable) instanceof TimeoutException) {
                                     RetryDetails retryResult = retrySendToKafka(record);
-                                    log.info("Retry result - {} CorrelationId={}", retryResult, correlationIdAsString(invite.getCorrelationId()));
+                                    log.info("Retry result - {} CorrelationId={}", retryResult, correlationIdAsString(invite.correlationId()));
                                 } else if (nonNull(result)) {
                                     log.info("Produced event to topic {} CorrelationId={} Message={}", record.topic(), correlationIdAsString(record), record.value());
                                 }
@@ -205,12 +206,14 @@ public class KafkaMeetingNotifier implements MeetingNotification {
 
     private org.propertymanagement.associationmeeting.v1.MeetingInvite toAvroMeetingInvite(MeetingInvite invite) {
         var avroMeetingInvite = new org.propertymanagement.associationmeeting.v1.MeetingInvite();
-        Optional.ofNullable(invite.getApproverId()).ifPresent(approverId -> avroMeetingInvite.setApproverId(String.valueOf(approverId.value())));
-        avroMeetingInvite.setCommunityId(invite.getCommunityId().value());
-        avroMeetingInvite.setTrackerId(invite.getTrackerId().toString());
-        avroMeetingInvite.setDate(invite.getDate().value());
-        avroMeetingInvite.setTime(invite.getTime().value());
-        avroMeetingInvite.setApprovalDateTime(invite.getApprovalDateTime());
+        Optional.ofNullable(invite.approverId()).ifPresent(approverId -> avroMeetingInvite.setApproverId(String.valueOf(approverId.value())));
+        avroMeetingInvite.setCommunityId(invite.communityId().value());
+        avroMeetingInvite.setTrackerId(invite.trackerId().toString());
+        avroMeetingInvite.setDate(invite.date().value());
+        avroMeetingInvite.setTime(invite.time().value());
+        if (invite.approvalDateTime() != null) {
+            avroMeetingInvite.setApprovalDateTime(invite.approvalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        }
         return avroMeetingInvite;
     }
 }

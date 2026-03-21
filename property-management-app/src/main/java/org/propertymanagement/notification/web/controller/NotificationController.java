@@ -54,6 +54,7 @@ public class NotificationController {
             log.info("Test - Received new notification to be sent. Request={} CorrelationId={}", request, correlationId);
             ScheduledAssociationMeeting scheduledMeeting = new ScheduledAssociationMeeting(
                     new CommunityId(request.getCommunityId()),
+                    null, // TrackerId not needed for test
                     new MeetingDate(request.getDate()),
                     new MeetingTime(request.getTime()),
                     request.getRecipientIds().stream().map(id ->
@@ -82,6 +83,8 @@ public class NotificationController {
 
                                  };
                             }).toList(),
+                    null, // ApproverId not needed for test
+                    null, // ApprovalDateTime not needed for test
                     CorrelationIdUtil.correlationIdAsBytes(correlationId)
             );
             meetingScheduler.notifyParticipants(scheduledMeeting);

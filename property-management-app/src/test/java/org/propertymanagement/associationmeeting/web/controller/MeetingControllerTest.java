@@ -15,6 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -47,7 +49,8 @@ public class MeetingControllerTest {
     private static final MeetingTime MEETING_TIME = new MeetingTime("19:00");
     private static final String APPROVAL_MEETING_DATE = "29/11/2024";
     private static final String APPROVAL_MEETING_TIME = "10:00";
-    private static final String APPROVAL_DATE_TIME = APPROVAL_MEETING_DATE + " " + APPROVAL_MEETING_TIME;
+    private static final String APPROVAL_DATE_TIME_STR = APPROVAL_MEETING_DATE + " " + APPROVAL_MEETING_TIME;
+    private static final LocalDateTime APPROVAL_DATE_TIME = LocalDateTime.parse(APPROVAL_DATE_TIME_STR, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     private static final TrackerId TRACKER_ID = new TrackerId(UUID.randomUUID());
     @Autowired
     private MockMvc mockMvc;
@@ -57,8 +60,8 @@ public class MeetingControllerTest {
 
     @Test
     void meetingStatusOk() throws Exception {
-        MeetingInvite meetingInvite = new MeetingInvite(MEETING_DATE, MEETING_TIME, COMMUNITY_ID, PRESIDENT_ID, APPROVAL_DATE_TIME, TRACKER_ID, null);
-        given(meetingScheduler.fecthMeetingInvite(any(CommunityId.class), any(TrackerId.class))).willReturn(meetingInvite);
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, PRESIDENT_ID, APPROVAL_DATE_TIME, null);
+        given(meetingScheduler.fetchMeetingInvite(any(CommunityId.class), any(TrackerId.class))).willReturn(meetingInvite);
 
         mockMvc.perform(get(ROOT_PATH + "/{communityId}/trackers/{trackerId}", COMMUNITY_ID.value(), TRACKER_ID.value())
                         .with(httpBasic("mark", "mark"))
@@ -71,19 +74,18 @@ public class MeetingControllerTest {
                 .andExpect(jsonPath("date").value(MEETING_DATE.value()))
                 .andExpect(jsonPath("time").value(MEETING_TIME.value()))
                 .andExpect(jsonPath("status").value(MEETING_SCHEDULE_APPROVED.name()))
-                .andExpect(jsonPath("approvalDateTime").value(APPROVAL_DATE_TIME));
-        verify(meetingScheduler).fecthMeetingInvite(any(CommunityId.class), any(TrackerId.class));
+                .andExpect(jsonPath("approvalDateTime").value(APPROVAL_DATE_TIME_STR));
+        verify(meetingScheduler).fetchMeetingInvite(any(CommunityId.class), any(TrackerId.class));
     }
 
     @Test
     void newMeetingCreated() throws Exception {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"));
-        meetingInvite.setCorrelationId("correlationId".getBytes(UTF_8));
-        meetingInvite.setTrackerId(TRACKER_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
+                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
 
         MeetingRequestDto meetingRequestDto = new MeetingRequestDto();
-        meetingRequestDto.setTime(meetingInvite.getTime().value());
-        meetingRequestDto.setDate(meetingInvite.getDate().value());
+        meetingRequestDto.setTime(meetingInvite.time().value());
+        meetingRequestDto.setDate(meetingInvite.date().value());
 
         given(meetingScheduler.newMeeting(any(MeetingInvite.class))).willReturn(meetingInvite);
 

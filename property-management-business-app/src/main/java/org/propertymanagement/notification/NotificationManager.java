@@ -25,17 +25,14 @@ public interface NotificationManager {
         boolean isMissingEmail = isNull(email) || isNull(email.value()) || email.value().isBlank();
 
         if (isMissingPhoneNumber && isMissingEmail) {
-            return Set.of(new InvalidRecipientNotification(new Recipient(participant.id(), null, null, null)));
+            Recipient recipient = new Recipient(participant.id(), null, null, participant.name());
+            return Set.of(new InvalidRecipientNotification(recipient, NO_PHONE_NUMBER_AND_NO_EMAIL));
         }
         return Set.of();
     }
 
     record InvalidRecipientNotification(Recipient recipient, Reason reason) {
-        public InvalidRecipientNotification(Recipient recipient) {
-            this(recipient, NO_PHONE_NUMBER_AND_NO_EMAIL);
-        }
-
-        enum Reason {
+        public enum Reason {
             NO_PHONE_NUMBER_AND_NO_EMAIL
         }
     }

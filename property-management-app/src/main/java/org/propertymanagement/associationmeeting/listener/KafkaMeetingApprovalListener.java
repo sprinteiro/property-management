@@ -14,6 +14,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static java.util.Objects.isNull;
@@ -25,6 +27,7 @@ public class KafkaMeetingApprovalListener {
     private final MeetingRepository meetingRepository;
     private final MeetingScheduler meetingScheduler;
     private final CorrelationIdLog correlationIdLog;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @KafkaListener(topics = {TOPIC_MEETING_APPROVAL_REQUEST}, groupId = "${kafka.topic.group-id.meeting}")
     public void receiveMeetingForApproval(ConsumerRecord<String, MeetingInvite> record, @Header(KafkaHeaders.CORRELATION_ID) byte[] correlationId) {
@@ -33,27 +36,34 @@ public class KafkaMeetingApprovalListener {
             log.info("Received record={} Key={} CorrelationId={}", invite, record.key(), KafkaHeadersUtil.correlationIdAsString(correlationId));
 
             var meetingInvite = toDomain(invite, correlationId);
-            ScheduledAssociationMeeting persistedScheduledMeeting = meetingRepository.fetchScheduledAssociationMeeting(meetingInvite.getCommunityId(), meetingInvite.getTrackerId());
+            ScheduledAssociationMeeting persistedScheduledMeeting = meetingRepository.fetchScheduledAssociationMeeting(meetingInvite.communityId(), meetingInvite.trackerId());
             if (isNull(persistedScheduledMeeting)) {
-                log.warn("Skipping meeting for approval as not found. TrackerId={} CommunityId={} ApproverId={}", meetingInvite.getTrackerId().toString(), meetingInvite.getCommunityId().value(), meetingInvite.getApproverId().value());
+                log.warn("Skipping meeting for approval as not found. TrackerId={} CommunityId={} ApproverId={}", meetingInvite.trackerId().toString(), meetingInvite.communityId().value(), meetingInvite.approverId().value());
                 return;
             }
 
-            meetingRepository.approveScheduledMeeting(meetingInvite.getCommunityId(), meetingInvite.getTrackerId(), meetingInvite.getApproverId());
-            ScheduledAssociationMeeting approvedMeetingWithCorrelationId = new ScheduledAssociationMeeting(persistedScheduledMeeting, correlationId);
+            // The approve method on the domain object could contain business logic, though here it's just for state transition
+            ScheduledAssociationMeeting approvedMeeting = persistedScheduledMeeting.approve(meetingInvite.approverId(), meetingInvite.approvalDateTime());
+            meetingRepository.approveScheduledMeeting(approvedMeeting);
+
+            ScheduledAssociationMeeting approvedMeetingWithCorrelationId = approvedMeeting.withCorrelationId(correlationId);
             meetingScheduler.notifyParticipants(approvedMeetingWithCorrelationId);
         });
     }
 
     private org.propertymanagement.domain.MeetingInvite toDomain(MeetingInvite invite, byte[] correlationId) {
-        var domainMeetingInvite = new org.propertymanagement.domain.MeetingInvite(
+        LocalDateTime approvalDateTime = null;
+        if (invite.getApprovalDateTime() != null) {
+            approvalDateTime = LocalDateTime.parse(invite.getApprovalDateTime(), DATE_TIME_FORMATTER);
+        }
+        return new org.propertymanagement.domain.MeetingInvite(
                 new CommunityId(invite.getCommunityId()),
                 new MeetingDate(invite.getDate()),
-                new MeetingTime(invite.getTime()));
-        domainMeetingInvite.setTrackerId(new TrackerId(UUID.fromString(invite.getTrackerId())));
-        domainMeetingInvite.setApproverId(new NeighbourgId(Long.valueOf(invite.getApproverId())));
-        domainMeetingInvite.setApprovalDateTime(invite.getApprovalDateTime());
-        domainMeetingInvite.setCorrelationId(correlationId);
-        return domainMeetingInvite;
+                new MeetingTime(invite.getTime()),
+                new TrackerId(UUID.fromString(invite.getTrackerId())),
+                new NeighbourgId(Long.valueOf(invite.getApproverId())),
+                approvalDateTime,
+                correlationId
+        );
     }
 }

@@ -38,3 +38,14 @@ build/
 /.mvn/
 /ssh
 /jmeter/log/**
+/docker/scripts/docker-compose-local-observability.yml
+/docker/scripts/filebeat.docker.yml
+/docker/scripts/filebeat.reference.yml
+/docker/scripts/filebeat-observability.yml
+/property-management-app/src/main/java/sicpa/InventoryApi.java
+/property-management-app/src/test/java/sicpa/InventoryApiTest.java
+/jmeter.log
+/docker/scripts/logstash-observability.conf
+/docker/scripts/metricbeat.docker.yml
+/docker/scripts/metricbeat-observability.yml
+/property-management-app/APP_LOG_IS_UNDEFINED/log/property-management.log

@@ -7,4 +7,5 @@ public interface MeetingRepository {
     MeetingInvite fetchMeetingInvite(CommunityId communityId, TrackerId trackerId);
     ScheduledAssociationMeeting fetchScheduledAssociationMeeting(CommunityId communityId, TrackerId trackerId);
     void approveScheduledMeeting(CommunityId communityId, TrackerId trackerId, NeighbourgId approverId);
+    void approveScheduledMeeting(ScheduledAssociationMeeting scheduledAssociationMeeting);
 }

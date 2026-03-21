@@ -10,6 +10,12 @@ public record Participant(
         PhoneNumber phoneNumber,
         Email email) {
 
+    public Participant(NeighbourgId id, ParticipantRole role) {
+        this(id, role, null, null, null);
+    }
+
+    // Nested records removed to use top-level types.
+
     public enum ParticipantRole {
         ADMINISTRATOR,
         PRESIDENT,

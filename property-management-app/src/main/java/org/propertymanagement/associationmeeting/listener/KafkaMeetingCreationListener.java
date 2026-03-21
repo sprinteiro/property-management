@@ -40,15 +40,24 @@ public class KafkaMeetingCreationListener {
     }
 
     private org.propertymanagement.domain.MeetingInvite toDomain(MeetingInvite invite, byte[] correlationId) {
-        var domainMeetingInvite = new org.propertymanagement.domain.MeetingInvite(
+        var approverId = Optional.ofNullable(invite.getApproverId())
+                .map(Long::valueOf)
+                .map(NeighbourgId::new)
+                .orElse(null);
+
+        var domainInvite = org.propertymanagement.domain.MeetingInvite.create(
                 new CommunityId(invite.getCommunityId()),
                 new MeetingDate(invite.getDate()),
-                new MeetingTime(invite.getTime()));
-        domainMeetingInvite.setTrackerId(new TrackerId(UUID.fromString(invite.getTrackerId())));
-        Optional.ofNullable(invite.getApproverId()).ifPresent(approverId -> domainMeetingInvite.setApproverId(new NeighbourgId(Long.valueOf(approverId))));
-        Optional.ofNullable(invite.getApprovalDateTime()).ifPresent(approvalDateTime -> domainMeetingInvite.setApprovalDateTime(approvalDateTime));
-        domainMeetingInvite.setApprovalDateTime(invite.getApprovalDateTime());
-        domainMeetingInvite.setCorrelationId(correlationId);
-        return domainMeetingInvite;
+                new MeetingTime(invite.getTime()),
+                approverId
+        );
+
+        if (invite.getTrackerId() != null) {
+            domainInvite = domainInvite.withTracker(new TrackerId(UUID.fromString(invite.getTrackerId())), correlationId);
+        } else {
+            domainInvite = domainInvite.withCorrelationId(correlationId);
+        }
+
+        return domainInvite;
     }
 }

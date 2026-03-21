@@ -42,7 +42,7 @@ public class JpaMeetingRepository implements MeetingRepository {
     @Transactional
     @Override
     public void registerMeetingInvite(MeetingInvite newMeetingInvite) {
-        CommunityEntity community = entityManager.find(CommunityEntity.class, newMeetingInvite.getCommunityId().value());
+        CommunityEntity community = entityManager.find(CommunityEntity.class, newMeetingInvite.communityId().value());
         if (isNull(community)) {
             return;
         }
@@ -50,9 +50,9 @@ public class JpaMeetingRepository implements MeetingRepository {
         Long approverId = community.getPresidentId();
         AssociationMeetingEntity associationMeetingEntity = new AssociationMeetingEntity();
         associationMeetingEntity.setApproverId(approverId);
-        associationMeetingEntity.setTrackerId(newMeetingInvite.getTrackerId().toString());
-        associationMeetingEntity.setScheduledDate(newMeetingInvite.getDate().value());
-        associationMeetingEntity.setScheduledTime(newMeetingInvite.getTime().value());
+        associationMeetingEntity.setTrackerId(newMeetingInvite.trackerId().toString());
+        associationMeetingEntity.setScheduledDate(newMeetingInvite.date().value());
+        associationMeetingEntity.setScheduledTime(newMeetingInvite.time().value());
         associationMeetingEntity.setCommunity(community);
 
         Collection<MeetingParticipantEntity> meetingParticipantEntities = fetchMeetingParticipants(community, associationMeetingEntity);
@@ -61,17 +61,18 @@ public class JpaMeetingRepository implements MeetingRepository {
         community.getMeetings().add(associationMeetingEntity);
 
         entityManager.persist(associationMeetingEntity);
-        newMeetingInvite.setApproverId(new NeighbourgId(approverId));
-
+        
         TypedQuery<MeetingTrackerEntity> query = entityManager.createQuery(
                 "SELECT mt FROM MeetingTracker mt WHERE mt.trackerId = :trackerId",
                 MeetingTrackerEntity.class);
-        query.setParameter("trackerId", newMeetingInvite.getTrackerId().toString());
+        query.setParameter("trackerId", newMeetingInvite.trackerId().toString());
         MeetingTrackerEntity meetingTrackerEntity = query.getResultStream()
                 .findFirst()
                 .orElse(null);
-        meetingTrackerEntity.setMeetingId(associationMeetingEntity);
-        entityManager.persist(meetingTrackerEntity);
+        if (meetingTrackerEntity != null) {
+            meetingTrackerEntity.setMeetingId(associationMeetingEntity);
+            entityManager.persist(meetingTrackerEntity);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -84,11 +85,19 @@ public class JpaMeetingRepository implements MeetingRepository {
 
         return query.getResultStream().findFirst().map(entity ->
         {
-            MeetingInvite invite = new MeetingInvite(communityId, new MeetingDate(entity.getScheduledDate()), new MeetingTime(entity.getScheduledTime()));
-            invite.setApproverId(new NeighbourgId(entity.getApproverId()));
-            invite.setApprovalDateTime(entity.getApprovalDateTime());
-            invite.setTrackerId(new TrackerId(UUID.fromString(entity.getTrackerId())));
-            return invite;
+            LocalDateTime approvalDateTime = null;
+            if (entity.getApprovalDateTime() != null) {
+                 approvalDateTime = LocalDateTime.parse(entity.getApprovalDateTime(), DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+            }
+            return new MeetingInvite(
+                    communityId,
+                    new MeetingDate(entity.getScheduledDate()),
+                    new MeetingTime(entity.getScheduledTime()),
+                    new TrackerId(UUID.fromString(entity.getTrackerId())),
+                    new NeighbourgId(entity.getApproverId()),
+                    approvalDateTime,
+                    null
+            );
         }).orElse(null);
     }
 
@@ -100,29 +109,40 @@ public class JpaMeetingRepository implements MeetingRepository {
                 AssociationMeetingEntity.class);
         query.setParameter("trackerId", trackerId.toString());
 
-        ScheduledAssociationMeeting persistedScheduledMeeting = query.getResultStream().findFirst().map(entity ->
-                        new ScheduledAssociationMeeting(
-                                communityId,
-                                new MeetingDate(entity.getScheduledDate()),
-                                new MeetingTime(entity.getScheduledTime()),
-                                entity.getParticipants().stream().map(participant ->
-                                        new Participant(new NeighbourgId(participant.getId()),
-                                                ParticipantRole.getRoleFrom(participant.getParticipantRole()),
-                                                null,
-                                                null,
-                                                null)
-                                ).toList(),
-                                null))
-                .orElse(null);
+        ScheduledAssociationMeeting persistedScheduledMeeting = query.getResultStream().findFirst().map(entity -> {
+                    LocalDateTime approvalDateTime = null;
+                    if (entity.getApprovalDateTime() != null) {
+                        approvalDateTime = LocalDateTime.parse(entity.getApprovalDateTime(), DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+                    }
+                    return new ScheduledAssociationMeeting(
+                            communityId,
+                            new TrackerId(UUID.fromString(entity.getTrackerId())),
+                            new MeetingDate(entity.getScheduledDate()),
+                            new MeetingTime(entity.getScheduledTime()),
+                            entity.getParticipants().stream().map(participant ->
+                                    new Participant(new NeighbourgId(participant.getId()),
+                                            ParticipantRole.getRoleFrom(participant.getParticipantRole()),
+                                            null,
+                                            null,
+                                            null)
+                            ).toList(),
+                            new NeighbourgId(entity.getApproverId()),
+                            approvalDateTime,
+                            null);
+        }).orElse(null);
 
         if (nonNull(persistedScheduledMeeting)) {
             Set<NeighbourgId> participantIds = persistedScheduledMeeting.participants().stream().map(Participant::id).collect(Collectors.toSet());
             List<Participant> participantsWithAllDetails = neighbourRepository.fetchNeighbours(participantIds).stream().toList();
             return new ScheduledAssociationMeeting(
                     persistedScheduledMeeting.communityId(),
+                    persistedScheduledMeeting.trackerId(),
                     persistedScheduledMeeting.date(),
                     persistedScheduledMeeting.time(),
-                    participantsWithAllDetails
+                    participantsWithAllDetails,
+                    persistedScheduledMeeting.approverId(),
+                    persistedScheduledMeeting.approvalDateTime(),
+                    null
             );
         }
 
@@ -150,6 +170,12 @@ public class JpaMeetingRepository implements MeetingRepository {
             throw new MeetingScheduleException(error, MeetingScheduleException.LogLevel.ERROR);
         }
         entityManager.merge(associationMeetingEntity);
+    }
+    
+    @Transactional
+    @Override
+    public void approveScheduledMeeting(ScheduledAssociationMeeting scheduledAssociationMeeting) {
+        approveScheduledMeeting(scheduledAssociationMeeting.communityId(), scheduledAssociationMeeting.trackerId(), scheduledAssociationMeeting.approverId());
     }
 
     private Collection<MeetingParticipantEntity> fetchMeetingParticipants(CommunityEntity community, AssociationMeetingEntity meeting) {

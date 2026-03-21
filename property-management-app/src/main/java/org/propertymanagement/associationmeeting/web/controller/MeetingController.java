@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @RestController
@@ -49,14 +50,14 @@ public class MeetingController {
     @GetMapping(path = "/{communityId}/trackers/{trackerId}")
     public ResponseEntity<MeetingStatusDto> meetingStatus(@PathVariable Long communityId, @PathVariable String trackerId) {
         log.info("About to check meeting status for trackerId={}", trackerId);
-        MeetingInvite invite = meetingScheduler.fecthMeetingInvite(new CommunityId(communityId), new TrackerId(UUID.fromString(trackerId)));
+        MeetingInvite invite = meetingScheduler.fetchMeetingInvite(new CommunityId(communityId), new TrackerId(UUID.fromString(trackerId)));
         MeetingStatusDto dto = MeetingStatusDto.builder()
-                .status(invite.getApprovalDateTime() == null ? MeetingStatusDto.TrackingStatus.MEETING_SCHEDULE_REQUESTED :
+                .status(invite.approvalDateTime() == null ? MeetingStatusDto.TrackingStatus.MEETING_SCHEDULE_REQUESTED :
                         MeetingStatusDto.TrackingStatus.MEETING_SCHEDULE_APPROVED
                 )
-                .date(invite.getDate().value())
-                .time(invite.getTime().value())
-                .approvalDateTime(invite.getApprovalDateTime())
+                .date(invite.date().value())
+                .time(invite.time().value())
+                .approvalDateTime(invite.approvalDateTime() != null ? invite.approvalDateTime().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : null)
                 .build();
         return ResponseEntity.ok(dto);
     }
@@ -72,23 +73,24 @@ public class MeetingController {
     @PostMapping(path = "/{communityId}/meetings")
     public ResponseEntity<MeetingStatusDto> newMeeting(@PathVariable Long communityId, @Valid @RequestBody MeetingRequestDto meetingRequest) {
         log.info("Received new meeting. CommunityId={} Request={}", communityId, meetingRequest);
-        MeetingInvite meetingInvite = new MeetingInvite(
+        MeetingInvite meetingInvite = MeetingInvite.create(
                 new CommunityId(communityId),
                 new MeetingDate(meetingRequest.getDate()),
-                new MeetingTime(meetingRequest.getTime()));
+                new MeetingTime(meetingRequest.getTime()),
+                null);
 
         meetingInvite = meetingScheduler.newMeeting(meetingInvite);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .replacePath("/communities/" + meetingInvite.getCommunityId().value() + "/trackers/{trackerId}")
-                .buildAndExpand(meetingInvite.getTrackerId().value())
+                .replacePath("/communities/" + meetingInvite.communityId().value() + "/trackers/{trackerId}")
+                .buildAndExpand(meetingInvite.trackerId().value())
                 .toUri();
         return ResponseEntity
                 .created(uri)
                 .body(MeetingStatusDto.builder()
                         .status(MeetingStatusDto.TrackingStatus.MEETING_SCHEDULE_REQUESTED)
                         .description("Association meeting creation has been requested.")
-                        .trackerId(meetingInvite.getTrackerId().toString())
+                        .trackerId(meetingInvite.trackerId().toString())
                         .build()
                 );
     }
@@ -158,4 +160,3 @@ public class MeetingController {
     }
 
 }
-

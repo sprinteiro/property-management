@@ -14,7 +14,7 @@ public class MeetingNotificationServiceTest {
     @Test
     void notifyForApprovalAutomatically() {
         MeetingNotification automaticNotifier = mock(MeetingNotification.class);
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, null, null, null);
 
         MeetingNotification meetingNotification = new MeetingNotificationService(true, automaticNotifier, null);
         meetingNotification.notifyForApproval(meetingInvite);
@@ -25,7 +25,7 @@ public class MeetingNotificationServiceTest {
     @Test
     void notifyForApprovalManually() {
         MeetingNotification manualNotifier = mock(MeetingNotification.class);
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, null, null, null);
 
         MeetingNotification meetingNotification = new MeetingNotificationService(false, null, manualNotifier);
         meetingNotification.notifyForApproval(meetingInvite);
@@ -36,7 +36,7 @@ public class MeetingNotificationServiceTest {
     @Test
     void notifyMeetingForCreation() {
         MeetingNotification automaticNotifier = mock(MeetingNotification.class);
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, null, null, null);
 
         MeetingNotification meetingNotification = new MeetingNotificationService(true, automaticNotifier, null);
         meetingNotification.notifyForCreation(meetingInvite);
@@ -49,7 +49,7 @@ public class MeetingNotificationServiceTest {
         MeetingNotification automaticNotifier = mock(MeetingNotification.class);
         MeetingNotification meetingNotification = new MeetingNotificationService(true, automaticNotifier, null);
 
-        ScheduledAssociationMeeting scheduledMeeting = new ScheduledAssociationMeeting(null, null, null, null);
+        ScheduledAssociationMeeting scheduledMeeting = new ScheduledAssociationMeeting(null, null, null, null, null, null, null, null);
         meetingNotification.notifyMeetingToParticipants(scheduledMeeting);
 
         verify(automaticNotifier).notifyMeetingToParticipants(scheduledMeeting);
@@ -58,7 +58,7 @@ public class MeetingNotificationServiceTest {
     @Test
     void approveMeeting() {
         MeetingNotification automaticNotifier = mock(MeetingNotification.class);
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID);
+        MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, null, null, null);
 
         MeetingNotificationService meetingNotification = new MeetingNotificationService(true, automaticNotifier, null);
         meetingNotification.approveMeeting(meetingInvite);
