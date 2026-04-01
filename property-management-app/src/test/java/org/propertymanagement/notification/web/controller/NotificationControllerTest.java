@@ -13,29 +13,23 @@ import org.propertymanagement.notification.WebNotificationMeetingConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.from;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.propertymanagement.domain.ResendMeetingInviteRequest.ResendType.TO_PARTICIPANTS;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+@AutoConfigureWebTestClient
 @ActiveProfiles(profiles = {"h2"})
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -49,85 +43,65 @@ public class NotificationControllerTest {
     private static final CommunityId COMMUNITY_ID = new CommunityId(1L);
     private static final MeetingDate MEETING_DATE = new MeetingDate("01/12/2024");
     private static final MeetingTime MEETING_TIME = new MeetingTime("19:00");
+    
     @Autowired
-    private TestRestTemplate restTemplate;
-    @MockBean
+    private WebTestClient webTestClient;
+    
+    @MockitoBean
     private MeetingScheduler meetingScheduler;
 
 
     @Test
     void lookupOk() {
-        var headers = newHttpHeaders("admin", "admin");
-
-        var response = restTemplate.exchange(
-                "/test/notifications/lookup",
-                GET,
-                new HttpEntity<>(headers),
-                String.class
-        );
-        assertThat(response.getStatusCode()).isEqualTo(OK);
+        webTestClient.get().uri("/test/notifications/lookup")
+                .headers(headers -> {
+                    headers.setBasicAuth("admin", "admin");
+                    headers.setAccept(List.of(APPLICATION_JSON));
+                })
+                .exchange()
+                .expectStatus().isOk();
     }
 
     @Test
     public void lookupUnauthorizedAsBadCredentials() {
-        var headers = newHttpHeaders("invalid", "invalid");
-
-        var response = restTemplate.exchange(
-                "/test/notifications/lookup",
-                GET,
-                new HttpEntity<>(headers),
-                String.class
-        );
-        assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED);
+        webTestClient.get().uri("/test/notifications/lookup")
+                .headers(headers -> {
+                    headers.setBasicAuth("invalid", "invalid");
+                    headers.setAccept(List.of(APPLICATION_JSON));
+                })
+                .exchange()
+                .expectStatus().isUnauthorized();
     }
 
     @Test
-    public void lookupForbiddenAsMissingAcceptAndContenttypeHeaders() {
-        var headers = new HttpHeaders();
-        // Set the Authorization header with the Base64-encoded credentials for Basic Authentication
-        headers.setBasicAuth("admin", "admin");
-
-        var response = restTemplate.exchange(
-                "/test/notifications/lookup",
-                GET,
-                new HttpEntity<>(headers),
-                String.class
-        );
-        assertThat(response.getStatusCode()).isEqualTo(FORBIDDEN);
+    public void lookupOkEvenMissingAcceptAndContentTypeHeaders() {
+        webTestClient.get().uri("/test/notifications/lookup")
+                .headers(headers -> headers.setBasicAuth("admin", "admin"))
+                .exchange()
+                .expectStatus().isOk();
     }
 
     @Test
     public void sendNotificationCreated() {
-        var headers = newHttpHeaders("admin", "admin");
         var notificationRequest = newNotificationRequestDto();
 
-        var response = restTemplate.exchange(
-                "/test/notifications",
-                POST,
-                new HttpEntity<>(notificationRequest, headers),
-                NotificationController.NotificationResponseDto.class
-        );
-        assertThat(response)
-                .returns(HttpStatus.CREATED, from(ResponseEntity::getStatusCode)) // Check status code
-                .satisfies(res -> {
-                    assertThat(res.getHeaders().getLocation().getPath())
-                            .contains("/correlationId/"); // Check location header
+        webTestClient.post().uri("/test/notifications")
+                .headers(headers -> {
+                    headers.setBasicAuth("admin", "admin");
+                    headers.setContentType(APPLICATION_JSON);
+                    headers.setAccept(List.of(APPLICATION_JSON));
                 })
-                .extracting(ResponseEntity::getBody) // Extract the response body
-                .satisfies(body -> {
-                    assertThat(body.getCorrelationId()).isNotBlank(); // Check correlationId
-                    assertThat(body.getDescription()).isNotBlank(); // Check description
+                .bodyValue(notificationRequest)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectHeader().value("Location", location -> assertThat(location).contains("/correlationId/"))
+                .expectBody(NotificationController.NotificationResponseDto.class)
+                .value(body -> {
+                    assertThat(body.getCorrelationId()).isNotBlank();
+                    assertThat(body.getDescription()).isNotBlank();
                 });
+        
         verify(meetingScheduler).notifyParticipants(any(ScheduledAssociationMeeting.class));
-    }
-
-    private HttpHeaders newHttpHeaders(String userName, String password) {
-        var headers = new HttpHeaders();
-        headers.setAccept(List.of(APPLICATION_JSON));
-        headers.setContentType(APPLICATION_JSON);
-        // Set the Authorization header with the Base64-encoded credentials for Basic Authentication
-        headers.setBasicAuth(userName, password);
-        return headers;
     }
 
     private NotificationController.NotificationRequestDto newNotificationRequestDto() {

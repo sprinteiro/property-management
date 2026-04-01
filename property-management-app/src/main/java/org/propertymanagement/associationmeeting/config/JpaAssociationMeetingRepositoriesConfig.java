@@ -6,7 +6,7 @@ import org.propertymanagement.associationmeeting.repository.*;
 import org.propertymanagement.associationmeeting.repository.sd.NoOpSdAssociationMeetingRepositories;
 import org.propertymanagement.associationmeeting.repository.sd.SdNeighbourRepository;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 

@@ -3,8 +3,9 @@ package org.propertymanagement.associationmeeting.config;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.notification.exception.NotificationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +18,9 @@ import static java.time.temporal.ChronoUnit.MILLIS;
 
 @ConditionalOnProperty(name = "notification.retry", havingValue = "on")
 @Configuration
-@Slf4j
 public class RetryNotificationConfig {
+    private static final Logger log = LoggerFactory.getLogger(RetryNotificationConfig.class);
+
     @Bean
     public Retry retryNotification(
             @Value("${notification.retry.number:3}") int maxAttempts,

@@ -1,7 +1,5 @@
 package org.propertymanagement.associationmeeting.notifier;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -14,6 +12,8 @@ import org.propertymanagement.domain.ScheduledAssociationMeeting;
 import org.propertymanagement.notification.v1.NotificationRequest;
 import org.propertymanagement.notification.v1.Recipient;
 import org.propertymanagement.util.CorrelationIdLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -22,6 +22,7 @@ import org.springframework.util.StringUtils;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -36,9 +37,8 @@ import static org.propertymanagement.associationmeeting.config.KafkaTopicsConfig
 import static org.propertymanagement.domain.notification.NotificationRequest.NotificationChannel.SMS;
 import static org.propertymanagement.util.KafkaHeadersUtil.correlationIdAsString;
 
-@RequiredArgsConstructor
-@Slf4j
 public class KafkaMeetingNotifier implements MeetingNotification {
+    private static final Logger log = LoggerFactory.getLogger(KafkaMeetingNotifier.class);
     public static final String TOPIC_NOTIFICATION_REQUEST = "notification-request";
     public static final String MEETING_NOTIFICATION = "MEETING_NOTIFICATION";
     private static final int MAX_RETRY_ATTEMPTS = 2;
@@ -47,6 +47,12 @@ public class KafkaMeetingNotifier implements MeetingNotification {
     private final KafkaTemplate<String, GenericRecord> kafkaTemplate;
     private final Executor kafkaExecutor;
     private final CorrelationIdLog correlationIdLog;
+
+    public KafkaMeetingNotifier(KafkaTemplate<String, GenericRecord> kafkaTemplate, Executor kafkaExecutor, CorrelationIdLog correlationIdLog) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.kafkaExecutor = kafkaExecutor;
+        this.correlationIdLog = correlationIdLog;
+    }
 
     @Override
     public void notifyForCreation(MeetingInvite invite) {
@@ -96,34 +102,34 @@ public class KafkaMeetingNotifier implements MeetingNotification {
 
     @Override
     public void notifyMeetingToParticipants(ScheduledAssociationMeeting scheduledMeeting) {
-        correlationIdLog.execWithProvidedCorrelationId(correlationIdAsString(scheduledMeeting.correlationId()), () -> {
+        var correlationId = correlationIdAsString(scheduledMeeting.correlationId());
+        correlationIdLog.execWithProvidedCorrelationId(correlationId, () -> {
             Map<String, String> copyOfContextMap = correlationIdLog.getCopyOfContextMap();
-            CompletableFuture.supplyAsync(() -> {
-                        correlationIdLog.setContextMap(copyOfContextMap);
-                        Collection<ProducerRecord<String, GenericRecord>> records = newProducerNotificationRequestRecordsWithCorrelationIdHeader(TOPIC_NOTIFICATION_REQUEST, scheduledMeeting);
+            Collection<ProducerRecord<String, GenericRecord>> records =
+                    newProducerNotificationRequestRecordsWithCorrelationIdHeader(TOPIC_NOTIFICATION_REQUEST, scheduledMeeting);
 
-                        records.forEach(record -> {
-                            try {
-                                log.info("Publishing notification request to notify recipients. CorrelationId={} Topic={} Message={}", correlationIdAsString(scheduledMeeting.correlationId()), record.topic(), record.value());
-                                kafkaTemplate.send(record);
-                                log.info("Produced event to topic {} CorrelationId={} Message={}", record.topic(), correlationIdAsString(record), record.value());
-                            } catch (Exception e) {
-                                if (ExceptionUtils.getRootCause(e) instanceof TimeoutException) {
-                                    RetryDetails retryResult = retrySendToKafka(record);
-                                    log.info("Retry result - {} CorrelationId={}", retryResult, correlationIdAsString(scheduledMeeting.correlationId()));
-                                } else {
-                                    throw e;
-                                }
-                            }
-                        });
-                        return null;
-                    }, kafkaExecutor)
-                    .handle((result, throwable) -> {
-                        if (nonNull(throwable)) {
-                            log.error("Notification error {}", throwable.getMessage(), throwable);
+            List<CompletableFuture<Void>> futures = records.stream()
+                    .map(record -> CompletableFuture.runAsync(() -> {
+                        correlationIdLog.setContextMap(copyOfContextMap);
+                        log.info("Publishing notification request. CorrelationId={} Topic={} Message={}",
+                                correlationId, record.topic(), record.value());
+                        try {
+                            kafkaTemplate.send(record).get(timeout, TimeUnit.MILLISECONDS);
+                            log.info("Produced event to topic {} CorrelationId={} Message={}", record.topic(), correlationId, record.value());
+                        } catch (Exception e) {
+                            log.error("Error sending notification to Kafka. CorrelationId={}", correlationId, e);
+                            throw new RuntimeException(e);
                         }
-                        return result;
-                    });
+                    }, kafkaExecutor))
+                    .toList();
+
+            try {
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+                        .get(timeout, TimeUnit.MILLISECONDS);
+            } catch (Exception e) {
+                log.error("Failure in notification fan-out for CorrelationId {}: {}", correlationId, e.getMessage());
+                throw new RuntimeException("Failed to notify all participants", e);
+            }
         });
     }
 
@@ -148,23 +154,21 @@ public class KafkaMeetingNotifier implements MeetingNotification {
     }
 
     private NotificationRequest newNotificationRequest(ScheduledAssociationMeeting scheduledMeeting, Participant participant, String channel) {
-        String date = scheduledMeeting.date().value();
-        String time = scheduledMeeting.time().value();
-        Long communityId = scheduledMeeting.communityId().value();
+        var recipient = new Recipient();
+        recipient.setId(participant.id().value());
+        recipient.setChannel(channel);
+        recipient.setAddress(org.propertymanagement.domain.notification.NotificationRequest.NotificationChannel.getChannelFrom(channel) == SMS
+                ? participant.phoneNumber().value() : participant.email().value());
+        recipient.setName(participant.name().value());
 
-        return new NotificationRequest(
-                MEETING_NOTIFICATION,
-                new Recipient(
-                        participant.id().value(),
-                        channel,
-                        org.propertymanagement.domain.notification.NotificationRequest.NotificationChannel.getChannelFrom(channel) == SMS
-                                ? participant.phoneNumber().value() : participant.email().value(),
-                        participant.name().value()
-                ),
-                date,
-                time,
-                communityId
-        );
+        var request = new NotificationRequest();
+        request.setNotificationType(MEETING_NOTIFICATION);
+        request.setRecipient(recipient);
+        request.setDate(scheduledMeeting.date().value());
+        request.setTime(scheduledMeeting.time().value());
+        request.setCommunityId(scheduledMeeting.communityId().value());
+
+        return request;
     }
 
     private ProducerRecord<String, GenericRecord> newProducerRecordWithCorrelationIdHeader(String topicName, SpecificRecordBase value, byte[] correlationId) {

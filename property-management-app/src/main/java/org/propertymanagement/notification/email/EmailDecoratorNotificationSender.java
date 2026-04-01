@@ -1,25 +1,30 @@
 package org.propertymanagement.notification.email;
 
 import io.github.resilience4j.retry.Retry;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.domain.notification.NotificationDelivery;
 import org.propertymanagement.domain.notification.Recipient;
 import org.propertymanagement.notification.EmailNotificationSender;
 import org.propertymanagement.notification.NotificationSender;
 import org.propertymanagement.notification.exception.FailedNotificationException;
 import org.propertymanagement.notification.exception.NotificationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.function.Supplier;
 
-@RequiredArgsConstructor
-@Slf4j
 public class EmailDecoratorNotificationSender implements EmailNotificationSender {
+    private static final Logger log = LoggerFactory.getLogger(EmailDecoratorNotificationSender.class);
+
     private final NotificationSender notificationSender;
     @Value("${email.retries:false}")
     private boolean retryEnabled;
     private final Retry retryNotification;
+
+    public EmailDecoratorNotificationSender(NotificationSender notificationSender, Retry retryNotification) {
+        this.notificationSender = notificationSender;
+        this.retryNotification = retryNotification;
+    }
 
     @Override
     public boolean sendNotification(NotificationDelivery notificationRequest) {

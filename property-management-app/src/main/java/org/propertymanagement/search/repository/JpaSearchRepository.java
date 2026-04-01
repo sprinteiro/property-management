@@ -1,6 +1,5 @@
 package org.propertymanagement.search.repository;
 
-import lombok.RequiredArgsConstructor;
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.CommunityEntity;
 import org.propertymanagement.domain.CommunityInfo;
 import org.propertymanagement.domain.search.SearchCriteria;
@@ -8,10 +7,14 @@ import org.propertymanagement.search.mapper.JpaCommunityEntityMapper;
 
 import java.util.List;
 
-@RequiredArgsConstructor
 public class JpaSearchRepository<D> implements SearchRepository<D> {
     private final DataCommunityRepository communityRepository;
     private final JpaCommunityEntityMapper jpaCommunityEntityMapper;
+
+    public JpaSearchRepository(DataCommunityRepository communityRepository, JpaCommunityEntityMapper jpaCommunityEntityMapper) {
+        this.communityRepository = communityRepository;
+        this.jpaCommunityEntityMapper = jpaCommunityEntityMapper;
+    }
 
 
     @Override

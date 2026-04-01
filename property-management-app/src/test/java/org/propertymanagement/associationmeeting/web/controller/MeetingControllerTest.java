@@ -10,8 +10,7 @@ import org.propertymanagement.associationmeeting.web.dto.MeetingRequestDto;
 import org.propertymanagement.associationmeeting.web.dto.ResendInviteDto;
 import org.propertymanagement.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -54,7 +53,7 @@ public class MeetingControllerTest {
     private static final TrackerId TRACKER_ID = new TrackerId(UUID.randomUUID());
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @org.springframework.test.context.bean.override.mockito.MockitoBean
     private MeetingScheduler meetingScheduler;
 
 

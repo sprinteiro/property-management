@@ -1,7 +1,5 @@
 package org.propertymanagement.notification.notifier;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.propertymanagement.associationmeeting.notification.FailedNotification;
@@ -9,16 +7,21 @@ import org.propertymanagement.domain.notification.Meeting;
 import org.propertymanagement.domain.notification.NotificationDelivery;
 import org.propertymanagement.notification.v1.NotificationRequest;
 import org.propertymanagement.notification.v1.Recipient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 
 import static org.propertymanagement.associationmeeting.config.KafkaTopicsConfig.TOPIC_NOTIFICATION_REQUEST_DLT;
 import static org.propertymanagement.util.KafkaHeadersUtil.correlationIdAsString;
 
-@Slf4j
-@RequiredArgsConstructor
 public class KafkaFailedNotificationNotifier implements FailedNotification {
+    private static final Logger log = LoggerFactory.getLogger(KafkaFailedNotificationNotifier.class);
     private final KafkaTemplate<String, GenericRecord> kafkaTemplate;
+
+    public KafkaFailedNotificationNotifier(KafkaTemplate<String, GenericRecord> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
 
     @Override

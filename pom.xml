@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>4.0.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.propertymanagement</groupId>
@@ -24,16 +24,17 @@
     </modules>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
         <mockito.version>5.14.2</mockito.version>
         <junit.version>5.11.3</junit.version>
-        <slf4j.version>2.0.6</slf4j.version>
+        <slf4j.version>2.0.16</slf4j.version>
         <lombok.version>1.18.36</lombok.version>
         <avro.version>1.12.0</avro.version>
         <avro-confluent.version>7.7.2</avro-confluent.version>
         <assert.version>3.27.3</assert.version>
         <springdoc-openapi.version>2.8.4</springdoc-openapi.version>
         <archunit.version>1.4.1</archunit.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
@@ -106,17 +107,29 @@
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc-openapi.version}</version>
             </dependency>
-                <dependency>
-                    <groupId>com.tngtech.archunit</groupId>
-                    <artifactId>archunit-junit5</artifactId>
-                    <version>${archunit.version}</version>
-                </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <release>${java.version}</release>
+                    <fork>true</fork>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <repositories>

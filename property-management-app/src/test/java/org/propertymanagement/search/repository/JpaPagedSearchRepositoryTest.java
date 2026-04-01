@@ -7,7 +7,7 @@ import org.propertymanagement.domain.search.OrderedBy.OrderField;
 import org.propertymanagement.search.JpaSearchRepositoriesConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;

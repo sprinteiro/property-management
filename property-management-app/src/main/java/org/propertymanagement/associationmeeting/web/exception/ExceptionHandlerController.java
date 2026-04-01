@@ -1,9 +1,10 @@
 package org.propertymanagement.associationmeeting.web.exception;
 
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.associationmeeting.exception.InvalidMeetingInviteException;
 import org.propertymanagement.associationmeeting.exception.MeetingScheduleException;
 import org.propertymanagement.associationmeeting.web.controller.NoOpController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,9 +15,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 
-@Slf4j
 @RestControllerAdvice(basePackageClasses = NoOpController.class)
 public class ExceptionHandlerController {
+    private static final Logger log = LoggerFactory.getLogger(ExceptionHandlerController.class);
 
     public static final String API_ERROR_UNABLE_TO_PROCESS_THE_REQUEST = "Unable to process the request";
 

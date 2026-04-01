@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.associationmeeting.MeetingScheduler;
 import org.propertymanagement.associationmeeting.web.dto.MeetingApprovalRequestDto;
 import org.propertymanagement.associationmeeting.web.dto.MeetingRequestDto;
@@ -13,6 +11,8 @@ import org.propertymanagement.associationmeeting.web.dto.MeetingStatusDto;
 import org.propertymanagement.associationmeeting.web.dto.ResendInviteDto;
 import org.propertymanagement.domain.*;
 import org.propertymanagement.domain.ResendMeetingInviteRequest.ResendType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,20 +24,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/communities", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-@RequiredArgsConstructor
-@Slf4j
 @Tag(name = "MeetingController", description = "API for managing association meetings")
 public class MeetingController {
+    private static final Logger log = LoggerFactory.getLogger(MeetingController.class);
     private final MeetingScheduler meetingScheduler;
 
-    /*
-        curl -v -H "Content-Type: application/json" -X GET http://localhost:8288/communities/1/trackers/48584f75-5021-47c2-9c86-7bc6880a3cd1
-        curl -v --user louis:louis -H "Content-Type: application/json" -X GET http://localhost:8288/communities/1/trackers/48584f75-5021-47c2-9c86-7bc6880a3cd1
-     */
-    /*
-        curl -v -X POST 'http://localhost:8288/communities/1/meetings' -H "Content-Type: application/json" -d '{"date":"01/12/2024", "time":"19:00"}'
-        curl -v --user admin:admin -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/1/meetings' -d '{"date":"01/12/2024", "time":"19:00"}'
-     */
+    public MeetingController(MeetingScheduler meetingScheduler) {
+        this.meetingScheduler = meetingScheduler;
+    }
 
     @Operation(
             summary = "Get meeting status",
@@ -95,10 +89,6 @@ public class MeetingController {
                 );
     }
 
-    /*
-        curl -v -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/1/trackers/3fe5ba9a-d073-44cb-a2c6-c15a6afae40e' -d '{"approverId":"1"}'
-        curl -v --user president:president -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/1/trackers/3fe5ba9a-d073-44cb-a2c6-c15a6afae40e' -d '{"approverId":"1"}'
-     */
     @Operation(
             summary = "Approve a meeting",
             description = "Approve a scheduled meeting by the current community's president",
@@ -124,11 +114,6 @@ public class MeetingController {
                         .description("Association meeting approval has been requested.").build());
     }
 
-    /*
-        curl -v -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/resendinvite' -d '{"communityId":"1", "trackerId":"62a60a71-fb86-49b3-af0d-ed796020d9df", "action":"FOR_APPROVAL"}'
-        curl -v -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/resendinvite' -d '{"communityId":"1", "trackerId":"62a60a71-fb86-49b3-af0d-ed796020d9df", "action":"TO_PARTICIPANTS"}'
-        curl -v --user admin:admin -H "Content-Type: application/json" -X POST 'http://localhost:8288/communities/resendinvite' -d '{"communityId":"1", "trackerId":"62a60a71-fb86-49b3-af0d-ed796020d9df", "action":"TO_PARTICIPANTS"}'
-     */
     @Operation(
             summary = "Resend meeting invite",
             description = "Resend a meeting invite for a specific action against a registered meeting (e.g., FOR_APPROVAL, TO_PARTICIPANTS)",

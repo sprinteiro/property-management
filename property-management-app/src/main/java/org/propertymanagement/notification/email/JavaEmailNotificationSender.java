@@ -1,11 +1,11 @@
 package org.propertymanagement.notification.email;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.domain.notification.Meeting;
 import org.propertymanagement.domain.notification.NotificationDelivery;
 import org.propertymanagement.notification.EmailNotificationSender;
 import org.propertymanagement.notification.exception.NotificationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailMessage;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,11 +14,15 @@ import org.springframework.util.StringUtils;
 import static java.util.Objects.isNull;
 import static org.propertymanagement.util.CorrelationIdUtil.correlationIdAsString;
 
-@RequiredArgsConstructor
-@Slf4j
 public class JavaEmailNotificationSender implements EmailNotificationSender {
+    private static final Logger log = LoggerFactory.getLogger(JavaEmailNotificationSender.class);
     private final JavaMailSender emailSender;
     private final SimpleMailMessage emailTemplate;
+
+    public JavaEmailNotificationSender(JavaMailSender emailSender, SimpleMailMessage emailTemplate) {
+        this.emailSender = emailSender;
+        this.emailTemplate = emailTemplate;
+    }
 
 
     @Override

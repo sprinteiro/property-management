@@ -1,11 +1,12 @@
 package org.propertymanagement.associationmeeting.config;
 
 import io.github.resilience4j.retry.Retry;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.notification.SmsNotificationSender;
 import org.propertymanagement.notification.sms.SmsDecoratorNotificationSender;
 import org.propertymanagement.notification.sms.SmsStubNotificationSender;
 import org.propertymanagement.notification.sms.SmsTwilioNotificationSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +14,9 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 
 
-@Slf4j
 public class SmsConfig {
+    private static final Logger log = LoggerFactory.getLogger(SmsConfig.class);
+
     @Autowired
     private Environment environment;
 

@@ -2,16 +2,18 @@ package org.propertymanagement.associationmeeting.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import lombok.RequiredArgsConstructor;
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.MeetingTrackerEntity;
 import org.propertymanagement.domain.*;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
-@RequiredArgsConstructor
 public class JpaTrackerIdRepository implements TrackerIdRepository {
     private final EntityManager entityManager;
+
+    public JpaTrackerIdRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)

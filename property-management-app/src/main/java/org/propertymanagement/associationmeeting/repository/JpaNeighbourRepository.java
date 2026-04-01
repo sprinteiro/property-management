@@ -1,11 +1,11 @@
 package org.propertymanagement.associationmeeting.repository;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.NeighbourEntity;
 import org.propertymanagement.associationmeeting.repository.sd.SdNeighbourRepository;
 import org.propertymanagement.domain.*;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -15,10 +15,12 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static org.propertymanagement.domain.Participant.ParticipantRole.*;
 
-@Slf4j
-@RequiredArgsConstructor
 public class JpaNeighbourRepository implements NeighbourRepository {
     private final SdNeighbourRepository sdNeighbourRepository;
+
+    public JpaNeighbourRepository(SdNeighbourRepository sdNeighbourRepository) {
+        this.sdNeighbourRepository = sdNeighbourRepository;
+    }
 
 
     @Transactional(readOnly = true)

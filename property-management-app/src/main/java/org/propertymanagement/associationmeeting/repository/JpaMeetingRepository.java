@@ -2,8 +2,6 @@ package org.propertymanagement.associationmeeting.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.associationmeeting.exception.MeetingScheduleException;
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.AssociationMeetingEntity;
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.CommunityEntity;
@@ -20,6 +18,8 @@ import org.propertymanagement.domain.Participant.ParticipantRole;
 import org.propertymanagement.domain.ScheduledAssociationMeeting;
 import org.propertymanagement.domain.TrackerId;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -33,11 +33,15 @@ import java.util.stream.Collectors;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-@RequiredArgsConstructor
-@Slf4j
 public class JpaMeetingRepository implements MeetingRepository {
+    private static final Logger log = LoggerFactory.getLogger(JpaMeetingRepository.class);
     private final EntityManager entityManager;
     private final NeighbourRepository neighbourRepository;
+
+    public JpaMeetingRepository(EntityManager entityManager, NeighbourRepository neighbourRepository) {
+        this.entityManager = entityManager;
+        this.neighbourRepository = neighbourRepository;
+    }
 
     @Transactional
     @Override
@@ -166,7 +170,7 @@ public class JpaMeetingRepository implements MeetingRepository {
 
         if (isNull(associationMeetingEntity)) {
             log.warn("Approval not found for TrackerId={} CommunityId={}", trackerId, communityId);
-            String error = String.format("Unable to approve meeting as not found. TrackerId=%d", trackerId);
+            String error = String.format("Unable to approve meeting as not found. TrackerId=%s", trackerId);
             throw new MeetingScheduleException(error, MeetingScheduleException.LogLevel.ERROR);
         }
         entityManager.merge(associationMeetingEntity);

@@ -1,6 +1,5 @@
 package org.propertymanagement.search.repository;
 
-import lombok.RequiredArgsConstructor;
 import org.propertymanagement.associationmeeting.persistence.jpa.entities.CommunityEntity;
 import org.propertymanagement.domain.CommunityInfo;
 import org.propertymanagement.domain.search.OrderedBy;
@@ -12,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -19,13 +19,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 public class JpaPagedSearchRepository<D> implements PagedSearchRepository<D> {
     private final DataCommunityRepository communityRepository;
     private final JpaCommunityEntityMapper jpaCommunityEntityMapper;
 
+    public JpaPagedSearchRepository(DataCommunityRepository communityRepository, JpaCommunityEntityMapper jpaCommunityEntityMapper) {
+        this.communityRepository = communityRepository;
+        this.jpaCommunityEntityMapper = jpaCommunityEntityMapper;
+    }
+
 
     @Override
+    @Transactional(readOnly = true)
     public PagedSearch<CommunityInfo> fetchAllCommunitiesInPages(SearchCriteria<D> searchCriteria) {
         if (CommunityInfo.class.getTypeName().equals(searchCriteria.clazz().getTypeName())) {
             int pageNumber = Optional.ofNullable(searchCriteria.page().pageNumber()).orElse(0);
@@ -48,7 +53,7 @@ public class JpaPagedSearchRepository<D> implements PagedSearchRepository<D> {
 
     private Specification<CommunityEntity> specificationFrom(SearchCriteria<D> searchCriteria) {
         if (Objects.isNull(searchCriteria.filters()) || searchCriteria.filters().isEmpty()) {
-            return Specification.where(null);
+            return (root, query, criteriaBuilder) -> criteriaBuilder.conjunction();
         }
 
         return (root, query, criteriaBuilder) -> {

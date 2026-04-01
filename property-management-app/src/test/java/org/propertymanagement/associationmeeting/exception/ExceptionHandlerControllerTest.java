@@ -9,9 +9,9 @@ import org.propertymanagement.associationmeeting.config.WebSecurityConfig;
 import org.propertymanagement.associationmeeting.web.dto.MeetingRequestDto;
 import org.propertymanagement.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -48,7 +48,7 @@ public class ExceptionHandlerControllerTest {
     public static final String API_ERROR_MESSAGE = "API error message";
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
+    @MockitoBean
     private MeetingScheduler meetingScheduler;
 
 

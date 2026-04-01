@@ -3,22 +3,26 @@ package org.propertymanagement.notification.sms;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.domain.notification.Meeting;
 import org.propertymanagement.domain.notification.NotificationDelivery;
 import org.propertymanagement.domain.notification.Recipient;
 import org.propertymanagement.notification.SmsNotificationSender;
 import org.propertymanagement.notification.exception.NotificationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import static java.util.Objects.isNull;
 
-@Slf4j
-@RequiredArgsConstructor
 public class SmsTwilioNotificationSender implements SmsNotificationSender {
+    private static final Logger log = LoggerFactory.getLogger(SmsTwilioNotificationSender.class);
     private final String accountId;
     private final String authToken;
+
+    public SmsTwilioNotificationSender(String accountId, String authToken) {
+        this.accountId = accountId;
+        this.authToken = authToken;
+    }
 
 
     @Override
@@ -61,4 +65,3 @@ public class SmsTwilioNotificationSender implements SmsNotificationSender {
     }
 
 }
-

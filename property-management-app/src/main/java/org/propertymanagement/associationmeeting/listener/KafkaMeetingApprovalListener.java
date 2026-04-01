@@ -1,7 +1,5 @@
 package org.propertymanagement.associationmeeting.listener;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.propertymanagement.associationmeeting.MeetingScheduler;
 import org.propertymanagement.associationmeeting.repository.MeetingRepository;
@@ -10,6 +8,8 @@ import org.propertymanagement.domain.*;
 import org.propertymanagement.util.CorrelationIdLog;
 import org.propertymanagement.util.CorrelationIdUtil;
 import org.propertymanagement.util.KafkaHeadersUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -21,13 +21,19 @@ import java.util.UUID;
 import static java.util.Objects.isNull;
 import static org.propertymanagement.associationmeeting.config.KafkaTopicsConfig.TOPIC_MEETING_APPROVAL_REQUEST;
 
-@Slf4j
-@RequiredArgsConstructor
 public class KafkaMeetingApprovalListener {
+    private static final Logger log = LoggerFactory.getLogger(KafkaMeetingApprovalListener.class);
+
     private final MeetingRepository meetingRepository;
     private final MeetingScheduler meetingScheduler;
     private final CorrelationIdLog correlationIdLog;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    public KafkaMeetingApprovalListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler, CorrelationIdLog correlationIdLog) {
+        this.meetingRepository = meetingRepository;
+        this.meetingScheduler = meetingScheduler;
+        this.correlationIdLog = correlationIdLog;
+    }
 
     @KafkaListener(topics = {TOPIC_MEETING_APPROVAL_REQUEST}, groupId = "${kafka.topic.group-id.meeting}")
     public void receiveMeetingForApproval(ConsumerRecord<String, MeetingInvite> record, @Header(KafkaHeaders.CORRELATION_ID) byte[] correlationId) {

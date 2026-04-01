@@ -1,7 +1,5 @@
 package org.propertymanagement.notification.recover;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -10,6 +8,8 @@ import org.propertymanagement.notification.exception.FailedNotificationException
 import org.propertymanagement.notification.v1.NotificationRequest;
 import org.propertymanagement.util.CorrelationIdLog;
 import org.propertymanagement.util.CorrelationIdUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.ConsumerRecordRecoverer;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -20,11 +20,16 @@ import static java.util.Objects.nonNull;
 import static org.propertymanagement.associationmeeting.config.KafkaTopicsConfig.TOPIC_NOTIFICATION_REQUEST_DLT;
 import static org.propertymanagement.util.KafkaUtil.longToBytes;
 
-@RequiredArgsConstructor
-@Slf4j
 public class KafkaNotificationRecoverer implements ConsumerRecordRecoverer {
+    private static final Logger log = LoggerFactory.getLogger(KafkaNotificationRecoverer.class);
+
     private final KafkaTemplate<String, GenericRecord> kafkaTemplate;
     private final CorrelationIdLog correlationIdLog;
+
+    public KafkaNotificationRecoverer(KafkaTemplate<String, GenericRecord> kafkaTemplate, CorrelationIdLog correlationIdLog) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.correlationIdLog = correlationIdLog;
+    }
 
     @Override
     public void accept(ConsumerRecord<?, ?> consumerRecord, Exception exception) {

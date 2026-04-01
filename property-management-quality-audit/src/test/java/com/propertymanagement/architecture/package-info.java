@@ -14,4 +14,4 @@
  * over time as the team or AI agents grow the codebase.</li>
  * </ul>
  */
-package com.property.management.architecture;
+package com.propertymanagement.architecture;

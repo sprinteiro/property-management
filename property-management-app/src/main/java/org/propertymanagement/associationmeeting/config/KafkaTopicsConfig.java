@@ -1,14 +1,16 @@
 package org.propertymanagement.associationmeeting.config;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.config.TopicBuilder;
 
 @ConditionalOnProperty(name = "kafka.topic.creation", havingValue = "on")
-@Slf4j
 public class KafkaTopicsConfig {
+    private static final Logger log = LoggerFactory.getLogger(KafkaTopicsConfig.class);
+
     private static final int TOPIC_TOTAL_PARTITIONS = 3;
     private static final int TOPIC_TOTAL_REPLICAS = 3;
     public static final String TOPIC_NOTIFICATION_REQUEST_DLT = "notification-request-dlt";

@@ -1,7 +1,5 @@
 package org.propertymanagement.associationmeeting.listener;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.propertymanagement.domain.*;
 import org.propertymanagement.domain.notification.Meeting;
@@ -13,6 +11,8 @@ import org.propertymanagement.notification.v1.NotificationRequest;
 import org.propertymanagement.util.CorrelationIdLog;
 import org.propertymanagement.util.CorrelationIdUtil;
 import org.propertymanagement.util.KafkaHeadersUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -21,11 +21,16 @@ import static java.util.Objects.isNull;
 import static org.propertymanagement.associationmeeting.notifier.KafkaMeetingNotifier.MEETING_NOTIFICATION;
 import static org.propertymanagement.associationmeeting.notifier.KafkaMeetingNotifier.TOPIC_NOTIFICATION_REQUEST;
 
-@RequiredArgsConstructor
-@Slf4j
 public class KafkaNotificationListener {
+    private static final Logger log = LoggerFactory.getLogger(KafkaNotificationListener.class);
+
     private final NotificationManager notificationManager;
     private final CorrelationIdLog correlationIdLog;
+
+    public KafkaNotificationListener(NotificationManager notificationManager, CorrelationIdLog correlationIdLog) {
+        this.notificationManager = notificationManager;
+        this.correlationIdLog = correlationIdLog;
+    }
 
 
     @KafkaListener(topics = { TOPIC_NOTIFICATION_REQUEST }, groupId = "${kafka.topic.group-id.meeting}")

@@ -1,8 +1,8 @@
 package org.propertymanagement.associationmeeting.config;
 
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
-import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
@@ -59,6 +59,8 @@ public class WebSecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html")
                             .permitAll()
+                        // Standard error handling
+                        .requestMatchers("/error").permitAll()
                         .anyRequest()
                             .denyAll())
 //                 HTTP Basic authentication

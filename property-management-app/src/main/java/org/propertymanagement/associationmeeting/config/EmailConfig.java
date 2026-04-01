@@ -1,16 +1,17 @@
 package org.propertymanagement.associationmeeting.config;
 
 import io.github.resilience4j.retry.Retry;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.notification.EmailNotificationSender;
 import org.propertymanagement.notification.email.EmailDecoratorNotificationSender;
 import org.propertymanagement.notification.email.EmailStubNotificationSender;
 import org.propertymanagement.notification.email.JavaEmailNotificationSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.mail.MailHealthIndicator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.mail.health.MailHealthIndicator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
@@ -19,8 +20,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 
-@Slf4j
 public class EmailConfig {
+    private static final Logger log = LoggerFactory.getLogger(EmailConfig.class);
+
     public static final String EMAIL_INTEGRATION_PROPERTY = "email.integration";
 
     public final static String EMAIL_TEMPLATE = """

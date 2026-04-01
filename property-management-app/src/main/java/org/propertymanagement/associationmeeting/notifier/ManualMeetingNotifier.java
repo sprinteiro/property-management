@@ -1,7 +1,5 @@
 package org.propertymanagement.associationmeeting.notifier;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.propertymanagement.associationmeeting.exception.MeetingScheduleException;
 import org.propertymanagement.associationmeeting.notification.MeetingNotification;
 import org.propertymanagement.associationmeeting.repository.MeetingRepository;
@@ -12,6 +10,8 @@ import org.propertymanagement.domain.notification.NotificationRequest.Notificati
 import org.propertymanagement.domain.notification.Recipient;
 import org.propertymanagement.notification.NotificationManager;
 import org.propertymanagement.util.CorrelationIdLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,16 @@ import static org.propertymanagement.domain.notification.NotificationRequest.Not
 import static org.propertymanagement.domain.notification.NotificationRequest.NotificationChannel.SMS;
 
 
-@RequiredArgsConstructor
-@Slf4j
 public class ManualMeetingNotifier implements MeetingNotification {
     private final NotificationManager notificationManager;
     private final MeetingRepository meetingRepository;
     private final CorrelationIdLog correlationIdLog;
+
+    public ManualMeetingNotifier(NotificationManager notificationManager, MeetingRepository meetingRepository, CorrelationIdLog correlationIdLog) {
+        this.notificationManager = notificationManager;
+        this.meetingRepository = meetingRepository;
+        this.correlationIdLog = correlationIdLog;
+    }
 
     @Override
     public void notifyForApproval(MeetingInvite invite) {
