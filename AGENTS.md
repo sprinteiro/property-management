@@ -38,10 +38,11 @@ You must strictly respect these boundaries to prevent architectural erosion:
 - **property-management-app-persistence-jpa-entity**: Infrastructure detail. Implements ports for `business-app` and **depends on `business-core`** for mapping.
 - **property-management-avro-schemas**: Shared messaging contracts. **Shared by any module performing messaging; depends on nothing.**
 - **property-management-app**: The Main Entry point and Composition Root.
+- **Web Adapter Isolation:** Every `@RestControllerAdvice` MUST be strictly scoped (e.g., via `assignableTypes`, `basePackageClasses`, or `annotations`) to the module it belongs to. This prevents side effects and adheres to the **Common-Closure Principle (CCP)** (see ADR-0005).
 
 ## 4. Architectural Compliance & ADRs
 - **Decision Authority:** Read `docs/adr/` before suggesting changes to threading, observability, or resilience.
-- **Flagging:** Violations of ADRs (e.g., ADR-0002 for Concurrency) must be flagged with a suggested correction.
+- **Flagging:** Violations of ADRs (e.g., ADR-0005 for Web Exception Handling) must be flagged with a suggested correction.
 - **Consultation:** STOP and provide 2 or 3 alternatives with pros/cons before changing API contracts, DB schemas, or core domain logic.
 
 ## 5. Development Workflow & Testing

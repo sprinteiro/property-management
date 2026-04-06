@@ -69,10 +69,10 @@ public class ExceptionHandlerControllerTest {
                         .content(JsonUtil.asJsonString(meetingRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
-                .andExpect(jsonPath("uri").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("timestamp").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("message").value(Matchers.is(apiErrorMessage)))
+                .andExpect(jsonPath("$.status").value(Matchers.is(BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.instance").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.timestamp").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.detail").value(Matchers.is(apiErrorMessage)))
         ;
         verify(meetingScheduler).newMeeting(any(MeetingInvite.class));
     }
@@ -93,10 +93,10 @@ public class ExceptionHandlerControllerTest {
                         .content(JsonUtil.asJsonString(meetingRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
-                .andExpect(jsonPath("uri").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("timestamp").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("message").value(Matchers.is(API_ERROR_MESSAGE)))
+                .andExpect(jsonPath("$.status").value(Matchers.is(BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.instance").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.timestamp").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.detail").value(Matchers.is(API_ERROR_MESSAGE)))
         ;
         verify(meetingScheduler).newMeeting(any(MeetingInvite.class));
     }
@@ -117,10 +117,10 @@ public class ExceptionHandlerControllerTest {
                         .content(JsonUtil.asJsonString(meetingRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
-                .andExpect(jsonPath("uri").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("timestamp").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("message").value(Matchers.is(API_ERROR_UNABLE_TO_PROCESS_THE_REQUEST)))
+                .andExpect(jsonPath("$.status").value(Matchers.is(BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.instance").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.timestamp").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.detail").value(Matchers.is(API_ERROR_UNABLE_TO_PROCESS_THE_REQUEST)))
         ;
         verify(meetingScheduler).newMeeting(any(MeetingInvite.class));
     }
@@ -142,10 +142,10 @@ public class ExceptionHandlerControllerTest {
                         .content(JsonUtil.asJsonString(new MeetingRequestDto())))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
-                .andExpect(jsonPath("uri").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("timestamp").value(org.hamcrest.Matchers.notNullValue()))
-                .andExpect(jsonPath("message").value(Matchers.is(API_ERROR_UNABLE_TO_PROCESS_THE_REQUEST)))
+                .andExpect(jsonPath("$.status").value(Matchers.is(BAD_REQUEST.value())))
+                .andExpect(jsonPath("$.instance").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.timestamp").value(org.hamcrest.Matchers.notNullValue()))
+                .andExpect(jsonPath("$.detail").value(Matchers.is(API_ERROR_UNABLE_TO_PROCESS_THE_REQUEST)))
         ;
         verifyNoInteractions(meetingScheduler);
     }
