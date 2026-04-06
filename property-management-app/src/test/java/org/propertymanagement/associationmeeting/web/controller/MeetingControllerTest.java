@@ -1,6 +1,6 @@
 package org.propertymanagement.associationmeeting.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.propertymanagement.util.JsonUtil;
 import org.junit.jupiter.api.Test;
 import org.propertymanagement.associationmeeting.MeetingScheduler;
 import org.propertymanagement.associationmeeting.config.WebConfig;
@@ -92,7 +92,7 @@ public class MeetingControllerTest {
                         .with(httpBasic("admin", "admin"))
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
-                        .content(asJsonString(meetingRequestDto)))
+                        .content(JsonUtil.asJsonString(meetingRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header()
@@ -113,7 +113,7 @@ public class MeetingControllerTest {
                         .with(httpBasic("president", "president"))
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
-                        .content(asJsonString(requestDto)))
+                        .content(JsonUtil.asJsonString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("description").value(org.hamcrest.Matchers.notNullValue()));
@@ -132,19 +132,10 @@ public class MeetingControllerTest {
                         .with(httpBasic("admin", "admin"))
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
-                        .content(asJsonString(requestDto)))
+                        .content(JsonUtil.asJsonString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("description").value(org.hamcrest.Matchers.notNullValue()));
         verify(meetingScheduler).resendMeetingInvite(any(ResendMeetingInviteRequest.class));
-    }
-
-    private String asJsonString(final Object obj) {
-        try {
-            final ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

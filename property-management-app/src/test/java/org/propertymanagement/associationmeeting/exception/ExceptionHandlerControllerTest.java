@@ -1,6 +1,6 @@
 package org.propertymanagement.associationmeeting.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.propertymanagement.util.JsonUtil;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.propertymanagement.associationmeeting.MeetingScheduler;
@@ -66,7 +66,7 @@ public class ExceptionHandlerControllerTest {
                         .with(httpBasic("admin", "admin"))
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
-                        .content(asJsonString(meetingRequestDto)))
+                        .content(JsonUtil.asJsonString(meetingRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
@@ -90,7 +90,7 @@ public class ExceptionHandlerControllerTest {
                         .with(httpBasic("admin", "admin"))
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
-                        .content(asJsonString(meetingRequestDto)))
+                        .content(JsonUtil.asJsonString(meetingRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
@@ -114,7 +114,7 @@ public class ExceptionHandlerControllerTest {
                         .with(httpBasic("admin", "admin"))
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
-                        .content(asJsonString(meetingRequestDto)))
+                        .content(JsonUtil.asJsonString(meetingRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
@@ -139,7 +139,7 @@ public class ExceptionHandlerControllerTest {
                         .with(httpBasic("admin", "admin"))
                         .accept(APPLICATION_JSON)
                         .contentType(APPLICATION_JSON)
-                        .content(asJsonString(new MeetingRequestDto())))
+                        .content(JsonUtil.asJsonString(new MeetingRequestDto())))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("statusCode").value(Matchers.is(BAD_REQUEST.value())))
@@ -149,15 +149,4 @@ public class ExceptionHandlerControllerTest {
         ;
         verifyNoInteractions(meetingScheduler);
     }
-
-
-    private String asJsonString(final Object obj) {
-        try {
-            final ObjectMapper mapper = new ObjectMapper();
-            return mapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }
