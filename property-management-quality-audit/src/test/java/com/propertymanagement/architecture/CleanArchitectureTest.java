@@ -30,6 +30,6 @@ public class CleanArchitectureTest {
     @ArchTest
     public static final ArchRule domainMustBeFrameworkFree = noClasses()
         .that().resideInAPackage("org.propertymanagement.domain..")
-        .should().dependOnClassesThat().resideInAnyPackage("org.springframework..", "jakarta.persistence..")
-        .as("Business Core must remain a 'Pure' Java domain, free of Spring or JPA annotations.");
+        .should().dependOnClassesThat().resideInAnyPackage("org.springframework..", "jakarta..")
+        .as("Business Core must remain a 'Pure' Java domain, free of Spring or Jakarta EE annotations.");
 }

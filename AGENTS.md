@@ -53,4 +53,4 @@ You must strictly respect these boundaries to prevent architectural erosion:
 ## 6. Communication Style
 - Be concise, technical, and architecturally focused.
 - **Documentation:** When a resiliency or performance pattern is implemented, include a Javadoc explaining the specific failure scenario or throughput goal it addresses.
-- **Thread-safe: ** In case a solution is not thread-safe indicate warnings and how to use to properly to avoid potential known issues due to misused.
+- **Thread-safe:** In case a solution is not thread-safe indicate warnings and how to use to properly to avoid potential known issues due to misused.
