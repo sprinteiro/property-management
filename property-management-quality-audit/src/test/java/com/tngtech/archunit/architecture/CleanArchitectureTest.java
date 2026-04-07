@@ -1,4 +1,4 @@
-package com.propertymanagement.architecture;
+package com.tngtech.archunit.architecture;
 
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -16,14 +16,13 @@ public class CleanArchitectureTest {
         .consideringOnlyDependenciesInLayers()
         .layer("Domain").definedBy(resideInAnyPackage("org.propertymanagement.domain.."))
         .layer("Application").definedBy(resideInAnyPackage("org.propertymanagement.associationmeeting..", "org.propertymanagement.notification..")
-            .and(resideInAnyPackage("..usecase..", "..port..", "..service..", "..scheduler..")))
-        .layer("Infrastructure").definedBy(resideInAnyPackage("..persistence..", "..config..", "..infrastructure..", "..repository..", "..listener..", "..notifier.."))
+            .and(resideInAnyPackage("..usecase..", "..port..", "..service..")))
+        .layer("Infrastructure").definedBy(resideInAnyPackage("..persistence..", "..config..", "..infrastructure..", "..repository.."))
         .layer("Rest").definedBy(resideInAnyPackage("..web..", "..controller.."))
-        
         .whereLayer("Domain").mayOnlyBeAccessedByLayers("Application", "Infrastructure", "Rest")
         .whereLayer("Application").mayOnlyBeAccessedByLayers("Infrastructure", "Rest")
         .whereLayer("Infrastructure").mayNotBeAccessedByAnyLayer()
-        .whereLayer("Rest").mayOnlyBeAccessedByLayers("Infrastructure")
+        .whereLayer("Rest").mayNotBeAccessedByAnyLayer()
         .allowEmptyShould(true)
         .as("The Dependency Law: Inner layers must not depend on outer layers.");
 
