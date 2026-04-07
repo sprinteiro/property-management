@@ -10,24 +10,23 @@ This application covers the following use cases for Neighborhood Association Mee
 <a id="start-up-the-runtime"></a>
 ## Start up the runtime
 To start up all dependencies required by the runtime `docker-compose.yml` script is used.
-It spins up a docker container per required dependency such as database, Kafka cluster, ELK (log aggregation) 
-and property management application.
+It spins up a docker container per required dependency such as database, Kafka cluster, and the **Grafana LGTM stack** (Loki, Grafana, Tempo, Mimir) for full OpenTelemetry observability.
 ```
 cd property-management
-docker-compose -f ./docker/scripts/docker-compose.yml up --remove-orphans
+docker compose -f ./docker/scripts/docker-compose.yml up --remove-orphans
 ```
 Run in detached mode
 ```
-docker-compose -f ./docker/scripts/docker-compose.yml up -d --remove-orphans
+docker compose -f ./docker/scripts/docker-compose.yml up -d --remove-orphans
 ```
 If you only want to start up the infrastructure as testing locally with your IDE or via `spring-boot-maven-plugin`
 use `docker-compose-local.yml` file instead.
-* `docker-compose -f ./docker/scripts/docker-compose-local.yml up -d --remove-orphans`
+* `docker compose -f ./docker/scripts/docker-compose-local.yml up -d --remove-orphans`
 * `mvn -pl property-management-app spring-boot:run`
 ## Shutdown
 ```
 cd property-management
-docker-compose -f ./docker/scripts/docker-compose.yml down --remove-orphans
+docker compose -f ./docker/scripts/docker-compose.yml down --remove-orphans
 ```
 ## Start up only the application
 It is assumed the infrastructure runtime is up and running (refer to [Start up the runtime](#start-up-the-runtime)).
@@ -57,7 +56,7 @@ There are two thread groups:
 * Enabled: Data Load - Batch of new scheduled meetings. 
   It creates scheduled meetings from data defined in `load_meetings.csv`.
   The schedules could be either automatically approved (`meeting.approval.automatic=true`) or pending (`meeting.approval.automatic=false`)
-* TODO: It is disabled. Meeting Schedule Journey The idea is to implement meeting schedule journey with automatic or manual approval
+* Disabled: Meeting Schedule Journey - Simulates a complete user journey with either automatic or manual approval flows.
 ```
 jmeter -n -t ./jmeter/scripts/property_management_last.jmx -l ./jmeter/log/result_jmeter.csv -j ./jmeter/log/jmeter.log
 ```
@@ -158,14 +157,28 @@ Note: Unnecessary use of -X or --request, POST is already inferred.
 ```
 
 
-# Kibana Query Language (KQL)
-`http://localhost:5601`
-#### Find all message logs with aggregated CorrelationId=<value> 
-`app.correlationId.keyword:* AND NOT app.correlationId.keyword:''`
-![Logs](doc/logs_elk.png "property-managment-* index")
+# Observability with OpenTelemetry (OTel)
+The application is integrated with the **Grafana LGTM stack** (Loki, Grafana, Tempo, Mimir) using the native `spring-boot-starter-opentelemetry` from Spring Boot 4.
+
+## Grafana Dashboards
+`http://localhost:3000` (Default credentials: `admin`/`admin`)
+
+### Distributed Tracing (Tempo)
+- Navigate to **Explore** -> **Tempo**.
+- Search by `service.name = property-management` to visualize request flows across HTTP, Kafka, and Database.
+- Traces automatically include Span IDs for granular analysis.
+
+### Log Aggregation (Loki)
+- Navigate to **Explore** -> **Loki**.
+- Query `{service_name="property-management"}` to see all application logs.
+- Logs are automatically correlated with Trace IDs, allowing you to jump from a log entry directly to its corresponding trace.
+
+### Metrics (Mimir/Prometheus)
+- Navigate to **Explore** -> **Prometheus**.
+- Search for metrics like `http_server_requests_seconds_count` or JVM performance data.
 
 # Kafka topics
-`http://localhost:8080`
+`http://localhost:8080` (Kafka UI)
 ![Topics](doc/kafka_topics.png "Select cluster - Topics")
 
 
@@ -236,16 +249,12 @@ Basic application architecture diagram produced with Exalidraw (https://excalidr
 
 # Requirements
 This application has been tested with the following tech stack:
-* Operating System: Ubuntu 22.04.5
-* Java version: OpenJDK 21.0.5
+* Operating System: Ubuntu 24.04+
+* Java version: **OpenJDK 25**
+* Spring Boot version: **4.0.x**
 * Apache Maven 3.9.9
 * Docker version 27.5.1
-* docker-compose version 1.29.2
 * Apache JMeter 5.6.3
-
-# Issues
-## Elastic search
-https://github.com/FusionAuth/fusionauth-containers/issues/20
 
 # Architecture & AI Governance
 
@@ -265,5 +274,4 @@ This project follows **Clean Architecture** principles, strictly enforced throug
 ## Architecture Audit
 - Run `./sanity_check_report.sh` to generate a report of architectural violations that need to be addressed before the Java 25 migration
 ## Observability and tracing
-- https://spring.io/blog/2025/11/18/opentelemetry-with-spring-boot#use-the-opentelemetry-spring-boot-starter-from-the-spring-team
-
+- [OpenTelemetry with Spring Boot 4 - Official Documentation](https://spring.io/blog/2025/11/18/opentelemetry-with-spring-boot#use-the-opentelemetry-spring-boot-starter-from-the-spring-team)
