@@ -264,4 +264,6 @@ This project follows **Clean Architecture** principles, strictly enforced throug
 # Developer Tools
 ## Architecture Audit
 - Run `./sanity_check_report.sh` to generate a report of architectural violations that need to be addressed before the Java 25 migration
+## Observability and tracing
+- https://spring.io/blog/2025/11/18/opentelemetry-with-spring-boot#use-the-opentelemetry-spring-boot-starter-from-the-spring-team
 

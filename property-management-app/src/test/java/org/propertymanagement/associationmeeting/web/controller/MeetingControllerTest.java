@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -59,7 +58,7 @@ public class MeetingControllerTest {
 
     @Test
     void meetingStatusOk() throws Exception {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, PRESIDENT_ID, APPROVAL_DATE_TIME, null);
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, PRESIDENT_ID, APPROVAL_DATE_TIME);
         given(meetingScheduler.fetchMeetingInvite(any(CommunityId.class), any(TrackerId.class))).willReturn(meetingInvite);
 
         mockMvc.perform(get(ROOT_PATH + "/{communityId}/trackers/{trackerId}", COMMUNITY_ID.value(), TRACKER_ID.value())
@@ -80,7 +79,7 @@ public class MeetingControllerTest {
     @Test
     void newMeetingCreated() throws Exception {
         MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
-                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
+                .withTracker(TRACKER_ID);
 
         MeetingRequestDto meetingRequestDto = new MeetingRequestDto();
         meetingRequestDto.setTime(meetingInvite.time().value());

@@ -12,7 +12,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.util.StringUtils;
 
 import static java.util.Objects.isNull;
-import static org.propertymanagement.util.CorrelationIdUtil.correlationIdAsString;
 
 public class JavaEmailNotificationSender implements EmailNotificationSender {
     private static final Logger log = LoggerFactory.getLogger(JavaEmailNotificationSender.class);
@@ -46,7 +45,7 @@ public class JavaEmailNotificationSender implements EmailNotificationSender {
                     .replace("{description}", meeting.meetingSubject().description());
             emailToSent.setText(emailBody);
 
-            log.info("Sending e-mail to {}. NeighbourId={} CorrelationId={}", recipient.address().getAddress(), recipient.id(), correlationIdAsString(notificationRequest.correlationId()));
+            log.info("Sending e-mail to {}. NeighbourId={}", recipient.address().getAddress(), recipient.id());
             emailSender.send((SimpleMailMessage) emailToSent);
             log.info("Sent via Java e-mail E-mail={}", ((SimpleMailMessage) emailToSent).getTo()[0]);
             return true;

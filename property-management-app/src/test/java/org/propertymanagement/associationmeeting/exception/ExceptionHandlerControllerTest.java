@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -55,7 +54,7 @@ public class ExceptionHandlerControllerTest {
     @Test
     void newMeetingBadRequestAsMeetingScheduleException() throws Exception {
         MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
-                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
+                .withTracker(TRACKER_ID);
         MeetingRequestDto meetingRequestDto = newMeetingRequestDto(meetingInvite);
 
         String apiErrorMessage = API_ERROR_MESSAGE;
@@ -80,7 +79,7 @@ public class ExceptionHandlerControllerTest {
     @Test
     void newMeetingBadRequestAsInvalidMeetingInviteException() throws Exception {
         MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
-                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
+                .withTracker(TRACKER_ID);
         MeetingRequestDto meetingRequestDto = newMeetingRequestDto(meetingInvite);
 
         given(meetingScheduler.newMeeting(any(MeetingInvite.class)))
@@ -104,7 +103,7 @@ public class ExceptionHandlerControllerTest {
     @Test
     void newMeetingBadRequestAsRuntimeException() throws Exception {
         MeetingInvite meetingInvite = MeetingInvite.create(COMMUNITY_ID, new MeetingDate("date"), new MeetingTime("time"), null)
-                .withTracker(TRACKER_ID, "correlationId".getBytes(UTF_8));
+                .withTracker(TRACKER_ID);
         MeetingRequestDto meetingRequestDto = newMeetingRequestDto(meetingInvite);
 
         given(meetingScheduler.newMeeting(any(MeetingInvite.class)))

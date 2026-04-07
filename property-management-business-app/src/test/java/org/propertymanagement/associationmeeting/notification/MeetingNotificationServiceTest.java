@@ -49,7 +49,7 @@ public class MeetingNotificationServiceTest {
         MeetingNotification automaticNotifier = mock(MeetingNotification.class);
         MeetingNotification meetingNotification = new MeetingNotificationService(true, automaticNotifier, null);
 
-        ScheduledAssociationMeeting scheduledMeeting = new ScheduledAssociationMeeting(null, null, null, null, null, null, null, null);
+        ScheduledAssociationMeeting scheduledMeeting = new ScheduledAssociationMeeting(null, null, null, null, null, null, null);
         meetingNotification.notifyMeetingToParticipants(scheduledMeeting);
 
         verify(automaticNotifier).notifyMeetingToParticipants(scheduledMeeting);

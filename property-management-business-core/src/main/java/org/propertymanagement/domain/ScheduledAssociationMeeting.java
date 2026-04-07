@@ -10,8 +10,7 @@ public record ScheduledAssociationMeeting(
     MeetingTime time,
     List<Participant> participants,
     NeighbourgId approverId,
-    LocalDateTime approvalDateTime,
-    byte[] correlationId
+    LocalDateTime approvalDateTime
 ) {
 
     public ScheduledAssociationMeeting approve(NeighbourgId approverId, LocalDateTime approvalDateTime) {
@@ -22,24 +21,7 @@ public record ScheduledAssociationMeeting(
             this.time,
             this.participants,
             approverId,
-            approvalDateTime,
-            this.correlationId
+            approvalDateTime
         );
     }
-
-    public ScheduledAssociationMeeting withCorrelationId(byte[] newCorrelationId) {
-        return new ScheduledAssociationMeeting(
-            this.communityId,
-            this.trackerId,
-            this.date,
-            this.time,
-            this.participants,
-            this.approverId,
-            this.approvalDateTime,
-            newCorrelationId
-        );
-    }
-    
-    // Legacy constructor support if needed, or update callers.
-    // For now, I will not include legacy constructors to force updating usages for correctness.
 }

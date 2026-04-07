@@ -13,9 +13,6 @@ import org.propertymanagement.associationmeeting.notification.MeetingNotificatio
 import org.propertymanagement.associationmeeting.notifier.KafkaMeetingNotifier;
 import org.propertymanagement.associationmeeting.repository.MeetingRepository;
 import org.propertymanagement.notification.NotificationManager;
-import org.propertymanagement.util.CorrelationIdLog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -76,35 +73,22 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaMeetingCreationListener kafkaMeetingCreationListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler, CorrelationIdLog correlationIdLog) {
-        return new KafkaMeetingCreationListener(meetingRepository, meetingScheduler, correlationIdLog);
+    public KafkaMeetingCreationListener kafkaMeetingCreationListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler) {
+        return new KafkaMeetingCreationListener(meetingRepository, meetingScheduler);
     }
 
     @Bean
-    public KafkaMeetingApprovalListener kafkaMeetingApprovalListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler, CorrelationIdLog correlationIdLog) {
-        return new KafkaMeetingApprovalListener(meetingRepository, meetingScheduler, correlationIdLog);
+    public KafkaMeetingApprovalListener kafkaMeetingApprovalListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler) {
+        return new KafkaMeetingApprovalListener(meetingRepository, meetingScheduler);
     }
 
     @Bean
-    public KafkaNotificationListener kafkaNotificationListener(NotificationManager notificationManager, CorrelationIdLog correlationIdLog) {
-        return new KafkaNotificationListener(notificationManager, correlationIdLog);
+    public KafkaNotificationListener kafkaNotificationListener(NotificationManager notificationManager) {
+        return new KafkaNotificationListener(notificationManager);
     }
 
     @Bean
-    public MeetingNotification kafkaMeetingNotifier(KafkaTemplate<String, GenericRecord> kafkaTemplate, Executor kafkaExecutor, CorrelationIdLog correlationIdLog) {
-        return new KafkaMeetingNotifier(kafkaTemplate, kafkaExecutor, correlationIdLog);
+    public MeetingNotification kafkaMeetingNotifier(KafkaTemplate<String, GenericRecord> kafkaTemplate, Executor kafkaExecutor) {
+        return new KafkaMeetingNotifier(kafkaTemplate, kafkaExecutor);
     }
-
-//    @Bean
-//    public DefaultErrorHandler errorHandler(ConsumerRecordRecoverer recoverer) {
-//        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer);
-//        handler.addNotRetryableExceptions(FailedNotificationException.class);
-//        return handler;
-//    }
-
-//    @Bean
-//    public ConsumerRecordRecoverer consumerRecordRecoverer(KafkaTemplate kafkaTemplate, CorrelationIdLog correlationIdLog) {
-//        return new KafkaNotificationRecoverer(kafkaTemplate, correlationIdLog);
-//    }
-
 }

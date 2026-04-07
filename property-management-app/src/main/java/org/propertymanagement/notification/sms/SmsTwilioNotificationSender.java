@@ -37,13 +37,13 @@ public class SmsTwilioNotificationSender implements SmsNotificationSender {
         text.append(details.meetingSubject().description())
                 .append("\n").append("Date:").append(details.date().value())
                 .append("\n").append("Time:").append(details.time().value());
-        return sendSms(recipient, text.toString(), notificationRequest.correlationId());
+        return sendSms(recipient, text.toString());
     }
 
-    private boolean sendSms(Recipient recipient, String text, byte[] correlationId) {
+    private boolean sendSms(Recipient recipient, String text) {
         Message message;
         try {
-            log.info("Sending SMS to {}. NeighbourId={} CorrelationId={}", recipient.address().getAddress(), recipient.id(), correlationId);
+            log.info("Sending SMS to {}. NeighbourId={}", recipient.address().getAddress(), recipient.id());
 
             message = Message
                     .creator(new com.twilio.type.PhoneNumber(recipient.address().getAddress()),

@@ -1,8 +1,6 @@
 package org.propertymanagement.domain;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Objects;
 
 /**
  * Represents an invitation for a community meeting.
@@ -16,8 +14,7 @@ public record MeetingInvite(
     MeetingTime time,
     TrackerId trackerId,
     NeighbourgId approverId,
-    LocalDateTime approvalDateTime,
-    byte[] correlationId
+    LocalDateTime approvalDateTime
 ) {
 
     /**
@@ -25,15 +22,15 @@ public record MeetingInvite(
      * The invite is not yet tracked or approved.
      */
     public static MeetingInvite create(CommunityId communityId, MeetingDate date, MeetingTime time, NeighbourgId approverId) {
-        return new MeetingInvite(communityId, date, time, null, approverId, null, null);
+        return new MeetingInvite(communityId, date, time, null, approverId, null);
     }
 
     /**
-     * Returns a new MeetingInvite instance with the tracker ID and correlation ID.
+     * Returns a new MeetingInvite instance with the tracker ID.
      * This represents the "tracking" state transition.
      */
-    public MeetingInvite withTracker(TrackerId newTrackerId, byte[] newCorrelationId) {
-        return new MeetingInvite(this.communityId, this.date, this.time, newTrackerId, this.approverId, this.approvalDateTime, newCorrelationId);
+    public MeetingInvite withTracker(TrackerId newTrackerId) {
+        return new MeetingInvite(this.communityId, this.date, this.time, newTrackerId, this.approverId, this.approvalDateTime);
     }
 
     /**
@@ -43,21 +40,14 @@ public record MeetingInvite(
      * @throws IllegalArgumentException if the approver is not the designated one.
      * @throws IllegalStateException if the invite has already been approved.
      */
-    public MeetingInvite approve(NeighbourgId approver, LocalDateTime approvalTime, byte[] newCorrelationId) {
+    public MeetingInvite approve(NeighbourgId approver, LocalDateTime approvalTime) {
         if (this.approverId != null && !this.approverId.equals(approver)) {
             throw new IllegalArgumentException("Invalid approver for this meeting invite.");
         }
         if (this.approvalDateTime != null) {
             throw new IllegalStateException("Meeting invite has already been approved on " + this.approvalDateTime);
         }
-        return new MeetingInvite(this.communityId, this.date, this.time, this.trackerId, approver, approvalTime, newCorrelationId);
-    }
-
-    /**
-     * Returns a new MeetingInvite with an updated correlation ID.
-     */
-    public MeetingInvite withCorrelationId(byte[] newCorrelationId) {
-        return new MeetingInvite(this.communityId, this.date, this.time, this.trackerId, this.approverId, this.approvalDateTime, newCorrelationId);
+        return new MeetingInvite(this.communityId, this.date, this.time, this.trackerId, approver, approvalTime);
     }
 
     @Override
@@ -69,29 +59,8 @@ public record MeetingInvite(
                 ", trackerId=" + trackerId +
                 ", approverId=" + approverId +
                 ", approvalDateTime=" + approvalDateTime +
-                ", correlationId=" + (correlationId != null ? new String(correlationId) : "null") +
                 '}';
     }
 
-    // Records provide default equals and hashCode, but this implementation is needed to correctly handle the byte array.
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        MeetingInvite that = (MeetingInvite) o;
-        return Objects.equals(communityId, that.communityId) &&
-               Objects.equals(date, that.date) &&
-               Objects.equals(time, that.time) &&
-               Objects.equals(trackerId, that.trackerId) &&
-               Objects.equals(approverId, that.approverId) &&
-               Objects.equals(approvalDateTime, that.approvalDateTime) &&
-               Arrays.equals(correlationId, that.correlationId);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(communityId, date, time, trackerId, approverId, approvalDateTime);
-        result = 31 * result + Arrays.hashCode(correlationId);
-        return result;
-    }
+    // Records provide default equals and hashCode, which are sufficient now that byte[] is removed.
 }

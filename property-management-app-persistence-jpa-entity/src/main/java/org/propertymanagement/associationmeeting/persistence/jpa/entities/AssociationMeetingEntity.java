@@ -22,7 +22,6 @@ public class AssociationMeetingEntity {
     private CommunityEntity community;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "meeting")
     private Collection<MeetingParticipantEntity> participants;
-    private String correlationId;
 
     public AssociationMeetingEntity() {}
 
@@ -49,9 +48,6 @@ public class AssociationMeetingEntity {
 
     public Collection<MeetingParticipantEntity> getParticipants() { return participants; }
     public void setParticipants(Collection<MeetingParticipantEntity> participants) { this.participants = participants; }
-
-    public String getCorrelationId() { return correlationId; }
-    public void setCorrelationId(String correlationId) { this.correlationId = correlationId; }
 
     @Override
     public boolean equals(Object o) {

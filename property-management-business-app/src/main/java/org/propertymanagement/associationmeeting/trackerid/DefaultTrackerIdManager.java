@@ -8,8 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
-import static org.propertymanagement.util.CorrelationIdUtil.correlationIdAsString;
-
 
 public class DefaultTrackerIdManager implements TrackerIdManager {
     private static final Logger log = LoggerFactory.getLogger(DefaultTrackerIdManager.class);
@@ -28,10 +26,10 @@ public class DefaultTrackerIdManager implements TrackerIdManager {
     public boolean registerId(MeetingInvite meetingInvite) {
         try {
             repository.register(meetingInvite);
-            log.info("Successfully registered TrackerId={} CorrelationId={}", meetingInvite.trackerId().toString(), correlationIdAsString(meetingInvite.correlationId()));
+            log.info("Successfully registered TrackerId={}", meetingInvite.trackerId().toString());
             return true;
         } catch (Exception e) {
-            log.error("Error in registering trackerId={} Reason={} CorrelationId={}", meetingInvite.trackerId().toString(), e.getMessage(), correlationIdAsString(meetingInvite.correlationId()));
+            log.error("Error in registering trackerId={} Reason={}", meetingInvite.trackerId().toString(), e.getMessage());
             return false;
         }
     }

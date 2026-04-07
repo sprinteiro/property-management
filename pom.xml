@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.4</version>
+        <version>4.0.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.propertymanagement</groupId>
@@ -25,6 +25,8 @@
 
     <properties>
         <java.version>25</java.version>
+        <datasource-micrometer.version>1.0.3</datasource-micrometer.version>
+        <spring-boot.version>4.0.5</spring-boot.version>
         <mockito.version>5.14.2</mockito.version>
         <junit.version>5.11.3</junit.version>
         <slf4j.version>2.0.16</slf4j.version>
@@ -106,6 +108,35 @@
                 <artifactId>archunit-junit5</artifactId>
                 <version>${archunit.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.github.ttddyy.observation</groupId>
+                <artifactId>datasource-micrometer-spring-boot-starter</artifactId>
+                <version>${datasource-micrometer.version}</version>
+            </dependency>
+            <!--
+              FIXME: Explicitly specified version for spring-boot-starter-opentelemetry.
+              Normally managed by spring-boot-starter-parent, but observed missing in BOM for 4.0.5.
+              Likely a temporary alignment issue in Spring Boot 4.x pre-releases or a conflict with the imported opentelemetry-bom.
+            -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-opentelemetry</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-opentelemetry-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <!-- Needed for OTel Instrumentation like Logback appender-->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>1.60.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -128,10 +159,6 @@
 
     <repositories>
         <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-        <repository>
             <id>central</id>
             <name>Default Repository</name>
             <layout>default</layout>
@@ -139,6 +166,10 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
         </repository>
     </repositories>
 

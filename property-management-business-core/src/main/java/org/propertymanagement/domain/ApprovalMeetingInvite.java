@@ -1,12 +1,9 @@
 package org.propertymanagement.domain;
 
-import java.util.Arrays;
-
 public class ApprovalMeetingInvite {
     private CommunityId communityId;
     private NeighbourgId approverId;
     private TrackerId trackerId;
-    private byte[] correlationId;
     private MeetingInvite meetingInvite;
 
 
@@ -44,14 +41,6 @@ public class ApprovalMeetingInvite {
         this.trackerId = trackerId;
     }
 
-    public byte[] getCorrelationId() {
-        return correlationId;
-    }
-
-    public void setCorrelationId(byte[] correlationId) {
-        this.correlationId = correlationId;
-    }
-
     public MeetingInvite getMeetingInvite() {
         return meetingInvite;
     }
@@ -66,7 +55,6 @@ public class ApprovalMeetingInvite {
                 "communityId=" + communityId +
                 ", approverId=" + approverId +
                 ", trackerId=" + trackerId +
-                ", correlationId=" + Arrays.toString(correlationId) +
                 ", meetingInvite=" + meetingInvite +
                 '}';
     }

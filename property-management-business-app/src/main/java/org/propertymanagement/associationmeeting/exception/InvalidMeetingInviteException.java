@@ -9,6 +9,10 @@ public class InvalidMeetingInviteException extends IllegalArgumentException {
         this.apiMessage = apiMessage;
     }
 
+    public InvalidMeetingInviteException(String message) {
+        this(message, null);
+    }
+
     public String getApiMessage() {
         return this.apiMessage;
     }

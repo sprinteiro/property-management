@@ -6,8 +6,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.propertymanagement.notification.exception.FailedNotificationException;
 import org.propertymanagement.notification.v1.NotificationRequest;
-import org.propertymanagement.util.CorrelationIdLog;
-import org.propertymanagement.util.CorrelationIdUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -24,30 +22,24 @@ public class KafkaNotificationRecoverer implements ConsumerRecordRecoverer {
     private static final Logger log = LoggerFactory.getLogger(KafkaNotificationRecoverer.class);
 
     private final KafkaTemplate<String, GenericRecord> kafkaTemplate;
-    private final CorrelationIdLog correlationIdLog;
 
-    public KafkaNotificationRecoverer(KafkaTemplate<String, GenericRecord> kafkaTemplate, CorrelationIdLog correlationIdLog) {
+    public KafkaNotificationRecoverer(KafkaTemplate<String, GenericRecord> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-        this.correlationIdLog = correlationIdLog;
     }
 
     @Override
     public void accept(ConsumerRecord<?, ?> consumerRecord, Exception exception) {
-        String correlationId = CorrelationIdUtil.correlationIdAsString(consumerRecord.headers().lastHeader(KafkaHeaders.CORRELATION_ID).value());
-        correlationIdLog.execWithProvidedCorrelationId(correlationId, () -> {
-            if (nonNull(exception) && ExceptionUtils.getRootCause(exception) instanceof FailedNotificationException) {
-                log.info("About to send to {} from {}", TOPIC_NOTIFICATION_REQUEST_DLT, consumerRecord.topic());
-                ProducerRecord<String, GenericRecord> record = newProducerRecordWithCorrelationIdHeader(TOPIC_NOTIFICATION_REQUEST_DLT, (ConsumerRecord<String, NotificationRequest>) consumerRecord);
-                kafkaTemplate.send(record);
-                log.info("Successfully sent to {} from {}", TOPIC_NOTIFICATION_REQUEST_DLT, consumerRecord.topic());
-            }
-        });
+        if (nonNull(exception) && ExceptionUtils.getRootCause(exception) instanceof FailedNotificationException) {
+            log.info("About to send to {} from {}", TOPIC_NOTIFICATION_REQUEST_DLT, consumerRecord.topic());
+            ProducerRecord<String, GenericRecord> record = newProducerRecord(TOPIC_NOTIFICATION_REQUEST_DLT, (ConsumerRecord<String, NotificationRequest>) consumerRecord);
+            kafkaTemplate.send(record);
+            log.info("Successfully sent to {} from {}", TOPIC_NOTIFICATION_REQUEST_DLT, consumerRecord.topic());
+        }
     }
 
-    private ProducerRecord<String, GenericRecord> newProducerRecordWithCorrelationIdHeader(String topicName, ConsumerRecord<String, NotificationRequest> consumerRecord) {
+    private ProducerRecord<String, GenericRecord> newProducerRecord(String topicName, ConsumerRecord<String, NotificationRequest> consumerRecord) {
         ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topicName, consumerRecord.value());
         record.headers()
-                .add(KafkaHeaders.CORRELATION_ID, consumerRecord.headers().lastHeader(KafkaHeaders.CORRELATION_ID).value())
                 .add(KafkaHeaders.DLT_ORIGINAL_TOPIC, consumerRecord.topic().getBytes(StandardCharsets.UTF_8))
                 .add(KafkaHeaders.ORIGINAL_TIMESTAMP, longToBytes(consumerRecord.timestamp()))
         ;

@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -62,7 +61,7 @@ public class JpaMeetingRepositoryTest {
 
         // Register a new meeting invite
         MeetingInvite meetingInvite =
-                new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, PRESIDENT_ID, APPROVAL_DATE_TIME, "correlationId".getBytes(UTF_8));
+                new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, PRESIDENT_ID, APPROVAL_DATE_TIME);
         jpaRepository.registerMeetingInvite(meetingInvite);
 
         // Fetch the registered meeting invite

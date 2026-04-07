@@ -5,14 +5,9 @@ import org.propertymanagement.associationmeeting.MeetingScheduler;
 import org.propertymanagement.associationmeeting.repository.MeetingRepository;
 import org.propertymanagement.associationmeeting.v1.MeetingInvite;
 import org.propertymanagement.domain.*;
-import org.propertymanagement.util.CorrelationIdLog;
-import org.propertymanagement.util.CorrelationIdUtil;
-import org.propertymanagement.util.KafkaHeadersUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,28 +18,24 @@ public class KafkaMeetingCreationListener {
     private static final Logger log = LoggerFactory.getLogger(KafkaMeetingCreationListener.class);
     private final MeetingRepository meetingRepository;
     private final MeetingScheduler meetingScheduler;
-    private final CorrelationIdLog correlationIdLog;
 
-    public KafkaMeetingCreationListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler, CorrelationIdLog correlationIdLog) {
+    public KafkaMeetingCreationListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler) {
         this.meetingRepository = meetingRepository;
         this.meetingScheduler = meetingScheduler;
-        this.correlationIdLog = correlationIdLog;
     }
 
     @KafkaListener(topics = {TOPIC_MEETING_REGISTRATION_REQUEST}, groupId = "${kafka.topic.group-id.meeting}")
-    public void receiveMeetingForCreation(ConsumerRecord<String, MeetingInvite> record, @Header(KafkaHeaders.CORRELATION_ID) byte[] correlationId) {
-        correlationIdLog.execWithProvidedCorrelationId(CorrelationIdUtil.correlationIdAsString(correlationId), () -> {
-            MeetingInvite avroInvite = record.value();
+    public void receiveMeetingForCreation(ConsumerRecord<String, MeetingInvite> record) {
+        MeetingInvite avroInvite = record.value();
 
-            log.info("Received record={} Key={} CorrelationId={}", avroInvite, record.key(), KafkaHeadersUtil.correlationIdAsString(correlationId));
-            org.propertymanagement.domain.MeetingInvite domainInvite = toDomain(avroInvite, correlationId);
+        log.info("Received record={} Key={}", avroInvite, record.key());
+        org.propertymanagement.domain.MeetingInvite domainInvite = toDomain(avroInvite);
 
-            meetingRepository.registerMeetingInvite(domainInvite);
-            meetingScheduler.notifyScheduledMeetingForApproval(domainInvite);
-        });
+        meetingRepository.registerMeetingInvite(domainInvite);
+        meetingScheduler.notifyScheduledMeetingForApproval(domainInvite);
     }
 
-    private org.propertymanagement.domain.MeetingInvite toDomain(MeetingInvite invite, byte[] correlationId) {
+    private org.propertymanagement.domain.MeetingInvite toDomain(MeetingInvite invite) {
         var approverId = Optional.ofNullable(invite.getApproverId())
                 .map(Long::valueOf)
                 .map(NeighbourgId::new)
@@ -58,9 +49,7 @@ public class KafkaMeetingCreationListener {
         );
 
         if (invite.getTrackerId() != null) {
-            domainInvite = domainInvite.withTracker(new TrackerId(UUID.fromString(invite.getTrackerId())), correlationId);
-        } else {
-            domainInvite = domainInvite.withCorrelationId(correlationId);
+            domainInvite = domainInvite.withTracker(new TrackerId(UUID.fromString(invite.getTrackerId())));
         }
 
         return domainInvite;

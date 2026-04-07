@@ -2,30 +2,42 @@ package org.propertymanagement.domain.notification;
 
 import org.propertymanagement.domain.CommunityId;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 
 public record NotificationDelivery<T>(
         NotificationType type,
-        byte[] correlationId,
         CommunityId communityId,
         Recipient recipient,
         T details) {
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NotificationDelivery<?> that = (NotificationDelivery<?>) o;
+        return type == that.type &&
+                Objects.equals(communityId, that.communityId) &&
+                Objects.equals(recipient, that.recipient) &&
+                Objects.equals(details, that.details);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, communityId, recipient, details);
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationDelivery[" +
+                "type=" + type +
+                ", communityId=" + communityId +
+                ", recipient=" + recipient +
+                ", details=" + details +
+                ']';
+    }
+
     public enum NotificationType {
         MEETING,
         UNKNOWN
-    }
-
-    public enum NotificationChannel {
-        SMS,
-        EMAIL;
-
-        public static NotificationChannel getChannelFrom(String from) {
-            return Arrays.stream(NotificationChannel.values())
-                    .filter(type -> type.name().equalsIgnoreCase(from))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Unknown channel: " + from));
-        }
     }
 }

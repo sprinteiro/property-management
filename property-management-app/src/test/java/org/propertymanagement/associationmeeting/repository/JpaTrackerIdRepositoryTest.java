@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 @DataJpaTest(properties = {
         "debug=false"
 })
@@ -38,7 +36,7 @@ public class JpaTrackerIdRepositoryTest {
     @Sql(scripts = {"classpath:/schema.sql", "classpath:/data.sql"})
     @Test
     void registerTrackerIdAndMeetingInviteAndFetchMeetingInvite() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, PRESIDENT_ID, APPROVAL_DATE_TIME, "correlationId".getBytes(UTF_8));
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, PRESIDENT_ID, APPROVAL_DATE_TIME);
         jpaRepository.register(meetingInvite);
 
         MeetingInvite registeredMeetingInvite = jpaRepository.fetchMeetingInvite(meetingInvite.trackerId());

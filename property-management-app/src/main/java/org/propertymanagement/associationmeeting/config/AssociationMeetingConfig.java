@@ -9,7 +9,7 @@ import org.propertymanagement.associationmeeting.repository.MeetingRepository;
 import org.propertymanagement.associationmeeting.repository.TrackerIdRepository;
 import org.propertymanagement.neighbour.repository.NeighbourRepository;
 import org.propertymanagement.notification.*;
-import org.propertymanagement.util.CorrelationIdLog;
+import org.propertymanagement.observability.ObservabilityConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -17,7 +17,6 @@ import org.springframework.context.annotation.Import;
 import java.util.concurrent.Executor;
 
 @Import(value = {
-        NotificationConfig.class,
         JpaAssociationMeetingRepositoriesConfig.class,
         WebConfig.class,
         WebSecurityConfig.class,
@@ -25,12 +24,14 @@ import java.util.concurrent.Executor;
         LogConfig.class,
         EmailConfig.class,
         SmsConfig.class,
-        WebNotificationMeetingConfig.class
+        WebNotificationMeetingConfig.class,
+        ObservabilityConfig.class,
+        NotificationConfig.class
 })
 public class AssociationMeetingConfig {
     @Bean
-    public MeetingNotification manualMeetingNotifier(NotificationManager notificationManager, MeetingRepository meetingRepository, CorrelationIdLog correlationIdLog) {
-        return new ManualMeetingNotifier(notificationManager, meetingRepository, correlationIdLog);
+    public MeetingNotification manualMeetingNotifier(NotificationManager notificationManager, MeetingRepository meetingRepository) {
+        return new ManualMeetingNotifier(notificationManager, meetingRepository);
     }
 
     @Bean
@@ -46,23 +47,20 @@ public class AssociationMeetingConfig {
             EmailNotificationSender emailNotificationSender,
             SmsNotificationSender smsNotificationSender,
             Executor notificationExecutor,
-            CorrelationIdLog correlationIdLog,
             FailedNotification kafkaFailedNotificationNotifier) {
-        return new DefaultNotificationManager(emailNotificationSender, smsNotificationSender, notificationExecutor, correlationIdLog, kafkaFailedNotificationNotifier);
+        return new DefaultNotificationManager(emailNotificationSender, smsNotificationSender, notificationExecutor, kafkaFailedNotificationNotifier);
     }
 
     @Bean
     public MeetingScheduler meetingScheduler(MeetingRepository meeetingRepository,
                                              NeighbourRepository neighbourRepository,
                                              MeetingNotification meetingNotificationService,
-                                             TrackerIdRepository trackerIdRepository,
-                                             CorrelationIdLog correlationIdLog) {
+                                             TrackerIdRepository trackerIdRepository) {
         return new MeetingScheduler(
                 meeetingRepository,
                 neighbourRepository,
                 meetingNotificationService,
-                trackerIdRepository,
-                correlationIdLog
+                trackerIdRepository
         );
     }
 }

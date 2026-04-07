@@ -5,14 +5,9 @@ import org.propertymanagement.associationmeeting.MeetingScheduler;
 import org.propertymanagement.associationmeeting.repository.MeetingRepository;
 import org.propertymanagement.associationmeeting.v1.MeetingInvite;
 import org.propertymanagement.domain.*;
-import org.propertymanagement.util.CorrelationIdLog;
-import org.propertymanagement.util.CorrelationIdUtil;
-import org.propertymanagement.util.KafkaHeadersUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,38 +21,32 @@ public class KafkaMeetingApprovalListener {
 
     private final MeetingRepository meetingRepository;
     private final MeetingScheduler meetingScheduler;
-    private final CorrelationIdLog correlationIdLog;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-    public KafkaMeetingApprovalListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler, CorrelationIdLog correlationIdLog) {
+    public KafkaMeetingApprovalListener(MeetingRepository meetingRepository, MeetingScheduler meetingScheduler) {
         this.meetingRepository = meetingRepository;
         this.meetingScheduler = meetingScheduler;
-        this.correlationIdLog = correlationIdLog;
     }
 
     @KafkaListener(topics = {TOPIC_MEETING_APPROVAL_REQUEST}, groupId = "${kafka.topic.group-id.meeting}")
-    public void receiveMeetingForApproval(ConsumerRecord<String, MeetingInvite> record, @Header(KafkaHeaders.CORRELATION_ID) byte[] correlationId) {
-        correlationIdLog.execWithProvidedCorrelationId(CorrelationIdUtil.correlationIdAsString(correlationId), () -> {
-            MeetingInvite invite = record.value();
-            log.info("Received record={} Key={} CorrelationId={}", invite, record.key(), KafkaHeadersUtil.correlationIdAsString(correlationId));
+    public void receiveMeetingForApproval(ConsumerRecord<String, MeetingInvite> record) {
+        MeetingInvite invite = record.value();
+        log.info("Received record={} Key={}", invite, record.key());
 
-            var meetingInvite = toDomain(invite, correlationId);
-            ScheduledAssociationMeeting persistedScheduledMeeting = meetingRepository.fetchScheduledAssociationMeeting(meetingInvite.communityId(), meetingInvite.trackerId());
-            if (isNull(persistedScheduledMeeting)) {
-                log.warn("Skipping meeting for approval as not found. TrackerId={} CommunityId={} ApproverId={}", meetingInvite.trackerId().toString(), meetingInvite.communityId().value(), meetingInvite.approverId().value());
-                return;
-            }
+        var meetingInvite = toDomain(invite);
+        ScheduledAssociationMeeting persistedScheduledMeeting = meetingRepository.fetchScheduledAssociationMeeting(meetingInvite.communityId(), meetingInvite.trackerId());
+        if (isNull(persistedScheduledMeeting)) {
+            log.warn("Skipping meeting for approval as not found. TrackerId={} CommunityId={} ApproverId={}", meetingInvite.trackerId().toString(), meetingInvite.communityId().value(), meetingInvite.approverId().value());
+            return;
+        }
 
-            // The approve method on the domain object could contain business logic, though here it's just for state transition
-            ScheduledAssociationMeeting approvedMeeting = persistedScheduledMeeting.approve(meetingInvite.approverId(), meetingInvite.approvalDateTime());
-            meetingRepository.approveScheduledMeeting(approvedMeeting);
+        ScheduledAssociationMeeting approvedMeeting = persistedScheduledMeeting.approve(meetingInvite.approverId(), meetingInvite.approvalDateTime());
+        meetingRepository.approveScheduledMeeting(approvedMeeting);
 
-            ScheduledAssociationMeeting approvedMeetingWithCorrelationId = approvedMeeting.withCorrelationId(correlationId);
-            meetingScheduler.notifyParticipants(approvedMeetingWithCorrelationId);
-        });
+        meetingScheduler.notifyParticipants(approvedMeeting);
     }
 
-    private org.propertymanagement.domain.MeetingInvite toDomain(MeetingInvite invite, byte[] correlationId) {
+    private org.propertymanagement.domain.MeetingInvite toDomain(MeetingInvite invite) {
         LocalDateTime approvalDateTime = null;
         if (invite.getApprovalDateTime() != null) {
             approvalDateTime = LocalDateTime.parse(invite.getApprovalDateTime(), DATE_TIME_FORMATTER);
@@ -68,8 +57,7 @@ public class KafkaMeetingApprovalListener {
                 new MeetingTime(invite.getTime()),
                 new TrackerId(UUID.fromString(invite.getTrackerId())),
                 new NeighbourgId(Long.valueOf(invite.getApproverId())),
-                approvalDateTime,
-                correlationId
+                approvalDateTime
         );
     }
 }

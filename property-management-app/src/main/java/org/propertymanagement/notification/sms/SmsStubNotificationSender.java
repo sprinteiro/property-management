@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
-import static org.propertymanagement.util.CorrelationIdUtil.correlationIdAsString;
 
 public class SmsStubNotificationSender implements SmsNotificationSender {
     private static final Logger log = LoggerFactory.getLogger(SmsStubNotificationSender.class);
@@ -35,7 +34,7 @@ public class SmsStubNotificationSender implements SmsNotificationSender {
             throw new NotificationException("Fake e-mail exception for " + recipient.address().getAddress());
         }
 
-        log.info("----------> DISABLED. Sending {} to {}. NeighbourId={} CorrelationId={}", recipient.channel(), recipient.address(), recipient.id(), correlationIdAsString(notificationRequest.correlationId()));
+        log.info("----------> DISABLED. Sending {} to {}. NeighbourId={}", recipient.channel(), recipient.address(), recipient.id());
         return true;
     }
 }

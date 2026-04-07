@@ -7,7 +7,6 @@ import java.util.List;
 
 public record NotificationRequest<T>(
         NotificationType type,
-        byte[] correlationId,
         CommunityId communityId,
         List<Recipient> recipients,
         T details) {

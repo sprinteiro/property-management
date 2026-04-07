@@ -10,10 +10,8 @@ import org.propertymanagement.notification.v1.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
 
 import static org.propertymanagement.associationmeeting.config.KafkaTopicsConfig.TOPIC_NOTIFICATION_REQUEST_DLT;
-import static org.propertymanagement.util.KafkaHeadersUtil.correlationIdAsString;
 
 public class KafkaFailedNotificationNotifier implements FailedNotification {
     private static final Logger log = LoggerFactory.getLogger(KafkaFailedNotificationNotifier.class);
@@ -27,10 +25,10 @@ public class KafkaFailedNotificationNotifier implements FailedNotification {
     @Override
     public void notifyFailedMeetingNotification(NotificationDelivery notification) {
         NotificationRequest avroNotificationRequest = toAvroNotificationRequest(notification);
-        ProducerRecord<String, GenericRecord> record = newProducerRecordWithCorrelationIdHeader(TOPIC_NOTIFICATION_REQUEST_DLT, avroNotificationRequest, notification.correlationId());
-        log.info("Publishing failed meeting notification. CorrelationId={} Topic={} Message={}", correlationIdAsString(notification.correlationId()), record.topic(), record.value());
+        ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(TOPIC_NOTIFICATION_REQUEST_DLT, avroNotificationRequest);
+        log.info("Publishing failed meeting notification. Topic={} Message={}", record.topic(), record.value());
         kafkaTemplate.send(record);
-        log.info("Produced event to topic {} CorrelationId={} Message={}", record.topic(), correlationIdAsString(record), record.value());
+        log.info("Produced event to topic {} Message={}", record.topic(), record.value());
     }
 
     private NotificationRequest toAvroNotificationRequest(NotificationDelivery notification) {
@@ -49,14 +47,6 @@ public class KafkaFailedNotificationNotifier implements FailedNotification {
                 meeting.time().value(),
                 notification.communityId().value()
         );
-    }
-
-    private ProducerRecord<String, GenericRecord> newProducerRecordWithCorrelationIdHeader(String topicName, NotificationRequest notificationRequest, byte[] correlationId) {
-        ProducerRecord<String, GenericRecord> record = new ProducerRecord<>(topicName, notificationRequest);
-        record.headers()
-                .add(KafkaHeaders.CORRELATION_ID, correlationId)
-        ;
-        return record;
     }
 
 }

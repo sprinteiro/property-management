@@ -99,8 +99,7 @@ public class JpaMeetingRepository implements MeetingRepository {
                     new MeetingTime(entity.getScheduledTime()),
                     new TrackerId(UUID.fromString(entity.getTrackerId())),
                     new NeighbourgId(entity.getApproverId()),
-                    approvalDateTime,
-                    null
+                    approvalDateTime
             );
         }).orElse(null);
     }
@@ -131,8 +130,7 @@ public class JpaMeetingRepository implements MeetingRepository {
                                             null)
                             ).toList(),
                             new NeighbourgId(entity.getApproverId()),
-                            approvalDateTime,
-                            null);
+                            approvalDateTime);
         }).orElse(null);
 
         if (nonNull(persistedScheduledMeeting)) {
@@ -145,8 +143,7 @@ public class JpaMeetingRepository implements MeetingRepository {
                     persistedScheduledMeeting.time(),
                     participantsWithAllDetails,
                     persistedScheduledMeeting.approverId(),
-                    persistedScheduledMeeting.approvalDateTime(),
-                    null
+                    persistedScheduledMeeting.approvalDateTime()
             );
         }
 

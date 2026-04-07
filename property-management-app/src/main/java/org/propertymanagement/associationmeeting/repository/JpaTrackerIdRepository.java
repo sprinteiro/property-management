@@ -43,7 +43,6 @@ public class JpaTrackerIdRepository implements TrackerIdRepository {
                     new MeetingTime(entity.getTime()),
                     trackerId,
                     null,
-                    null,
                     null
             );
         }).orElse(null);

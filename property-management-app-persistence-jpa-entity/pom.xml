@@ -18,6 +18,10 @@
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
         </dependency>
+        <!-- TODO: Unable to find the dependency -->
+<!--        <dependency>-->
+<!--            <groupId>io.github.ttddyy.observation</groupId>-->
+<!--            <artifactId>datasource-micrometer-spring-boot-starter</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
-
 </project>

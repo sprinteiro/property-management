@@ -1,12 +1,15 @@
 package org.propertymanagement.associationmeeting.config;
 
-import org.propertymanagement.util.CorrelationIdLog;
-import org.propertymanagement.util.CorrelationIdLogUtils;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class LogConfig {
     @Bean
-    public CorrelationIdLog correlationIdLog() {
-        return new CorrelationIdLogUtils();
+    public InitializingBean installOpenTelemetryAppender(OpenTelemetry openTelemetry) {
+        return () -> OpenTelemetryAppender.install(openTelemetry);
     }
 }

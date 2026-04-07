@@ -6,7 +6,6 @@ import org.propertymanagement.domain.*;
 
 import java.util.UUID;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -23,7 +22,7 @@ public class DefaultTrackerIdManagerTest {
 
     @Test
     void registerTrackerId() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, null, null, "correlationId".getBytes(UTF_8));
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, null, null);
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
 
         TrackerIdManager trackerIdManager = new DefaultTrackerIdManager(mockTrackerIdRepository);
@@ -34,7 +33,7 @@ public class DefaultTrackerIdManagerTest {
 
     @Test
     void unableRegisterTrackerId() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, null, null, "correlationId".getBytes(UTF_8));
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, MEETING_DATE, MEETING_TIME, TRACKER_ID, null, null);
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
         doThrow(RuntimeException.class).when(mockTrackerIdRepository).register(meetingInvite);
 
@@ -46,7 +45,7 @@ public class DefaultTrackerIdManagerTest {
 
     @Test
     void fetchMeetingInvite() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, null, null, null, null, null, null);
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, null, null, null, null, null);
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
         when(mockTrackerIdRepository.fetchMeetingInvite(TRACKER_ID)).thenReturn(meetingInvite);
 
@@ -60,7 +59,7 @@ public class DefaultTrackerIdManagerTest {
 
     @Test
     void generateTrackerId() {
-        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, null, null, null, null, null, null);
+        MeetingInvite meetingInvite = new MeetingInvite(COMMUNITY_ID, null, null, null, null, null);
         TrackerIdRepository mockTrackerIdRepository = mock(TrackerIdRepository.class);
         when(mockTrackerIdRepository.fetchMeetingInvite(TRACKER_ID)).thenReturn(meetingInvite);
 

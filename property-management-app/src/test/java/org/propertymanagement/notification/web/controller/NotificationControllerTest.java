@@ -93,11 +93,9 @@ public class NotificationControllerTest {
                 })
                 .bodyValue(notificationRequest)
                 .exchange()
-                .expectStatus().isCreated()
-                .expectHeader().value("Location", location -> assertThat(location).contains("/correlationId/"))
+                .expectStatus().isOk()
                 .expectBody(NotificationController.NotificationResponseDto.class)
                 .value(body -> {
-                    assertThat(body.getCorrelationId()).isNotBlank();
                     assertThat(body.getDescription()).isNotBlank();
                 });
         

@@ -15,7 +15,6 @@ import java.util.function.Supplier;
 
 public class EmailDecoratorNotificationSender implements EmailNotificationSender {
     private static final Logger log = LoggerFactory.getLogger(EmailDecoratorNotificationSender.class);
-
     private final NotificationSender notificationSender;
     @Value("${email.retries:false}")
     private boolean retryEnabled;
