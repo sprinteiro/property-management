@@ -48,10 +48,10 @@ public class MeetingScheduler {
             throw new MeetingScheduleException(errorMessage);
         }
 
-        MeetingInvite persistedInvite = meetingRepository.fetchMeetingInvite(trackedInvite.communityId(), trackedInvite.trackerId());
+//        MeetingInvite persistedInvite = meetingRepository.fetchMeetingInvite(trackedInvite.communityId(), trackedInvite.trackerId());
 
-        notifyScheduledMeetingForRegistration(persistedInvite);
-        return persistedInvite;
+        notifyScheduledMeetingForRegistration(trackedInvite);
+        return trackedInvite;
     }
 
     public void fetchMeetingInviteAndNotifyScheduledMeetingForApproval(ApprovalMeetingInvite approval) {

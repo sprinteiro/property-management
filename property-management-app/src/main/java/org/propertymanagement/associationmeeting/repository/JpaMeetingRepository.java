@@ -83,7 +83,7 @@ public class JpaMeetingRepository implements MeetingRepository {
     @Override
     public MeetingInvite fetchMeetingInvite(CommunityId communityId, TrackerId trackerId) {
         TypedQuery<AssociationMeetingEntity> query = entityManager.createQuery(
-                "SELECT am FROM AssociationMeeting am WHERE am.trackerId = :trackerId",
+                "SELECT mt FROM MeetingTracker am WHERE mt.trackerId = :trackerId",
                 AssociationMeetingEntity.class);
         query.setParameter("trackerId", trackerId.toString());
 

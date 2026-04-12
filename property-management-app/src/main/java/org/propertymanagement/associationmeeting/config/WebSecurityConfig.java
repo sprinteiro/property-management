@@ -4,12 +4,13 @@ import org.springframework.boot.actuate.info.InfoEndpoint;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -19,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+@Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
     public static final String ROLE_COMMUNITY_MEMBER = "COMMUNITY_MEMBER";
@@ -27,6 +29,18 @@ public class WebSecurityConfig {
     public static final String ROLE_COMMUNITY_ADMIN = "COMMUNITY_ADMIN";
     public static final String ROLE_SUPERADMIN = "SUPERADMIN";
     public static final String ROLE_ACTUATOR = "ACTUATOR";
+
+    /**
+     * Decoupled way to skip /h2-console for the 'h2' profile.
+     * WebSecurityCustomizer bypasses the entire security filter chain.
+     */
+    @Bean
+    @Profile("h2")
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                // Explicitly match both to handle strict path matching in Spring Boot 4
+                .requestMatchers("/h2-console", "/h2-console/**");
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -66,17 +80,9 @@ public class WebSecurityConfig {
 //                 HTTP Basic authentication
                 .httpBasic(withDefaults())
 //                 API is stateless, no CSRF token
-                .csrf(CsrfConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable);
         // @formatter:on
         return http.build();
-    }
-
-
-    @Profile(value = {"h2"})
-    @Bean
-    WebSecurityCustomizer webSecurityCustomizer() {
-        // These URLs pass straight through, no checks
-        return web -> web.ignoring().requestMatchers("/h2-console/**");
     }
 
     @Bean
